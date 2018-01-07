@@ -1,0 +1,6 @@
+[package]
+name = "morse"
+version = "0.1.0"
+authors = ["Cathy Douglass <cdouglass256@gmail.com>"]
+
+[dependencies]
