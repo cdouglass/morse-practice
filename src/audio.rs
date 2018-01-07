@@ -16,30 +16,56 @@ pub enum Sound {
 }
 use self::Sound::*;
 
-pub fn play<I>(sounds: I) -> Command
-where I: Iterator<Item=Sound> {
+// Make it easy to tell when the tone is ending
+fn add_click(cmd: &mut Command) {
+    cmd.arg("-n")
+       .arg(format!("-f {}", 110))
+       .arg(format!("-l {}", 2));
+}
+
+pub fn play(sounds: &Vec<Sound>, farnsworth: bool) -> Command {
     // create beep command with no tones
     let mut cmd = Command::new("beep");
     cmd.arg("-l 0");
 
     for sound in sounds {
-        match sound {
+        match *sound {
             // add new tone
             ShortBeep => {
                 cmd.arg("-n")
                    .arg(format!("-D {}", SHORT))
                    .arg(format!("-f {}", PITCH))
                    .arg(format!("-l {}", SHORT));
+                add_click(&mut cmd);
             },
             LongBeep => {
                 cmd.arg("-n")
                    .arg(format!("-D {}", SHORT))
                    .arg(format!("-f {}", PITCH))
                    .arg(format!("-l {}", LONG));
+                add_click(&mut cmd);
             },
             // change delay following last tone added
-            ShortSilence => { cmd.arg(format!("-D {}", LONG)); },
-            LongSilence  => { cmd.arg(format!("-D {}", VERY_LONG)); }
+            ShortSilence => {
+                //cmd.arg(format!("-D {}", LONG));
+                cmd.arg("-n")
+                   .arg(format!("-f {}", 1));
+                if farnsworth {
+                   cmd.arg(format!("-l {}", LONG)); // screw this so far
+                   //cmd.arg(format!("-l {}", VERY_LONG));
+                } else {
+                   cmd.arg(format!("-l {}", LONG));
+                }
+            },
+            LongSilence  => {
+                cmd.arg("-n")
+                   .arg(format!("-f {}", 1));
+                if farnsworth {
+                   cmd.arg(format!("-l {}", 10 * SHORT));
+                } else {
+                   cmd.arg(format!("-D {}", VERY_LONG));
+                }
+            }
         }
     }
 
