@@ -16,7 +16,7 @@ pub enum Sound {
 }
 use self::Sound::*;
 
-pub fn play_sounds<I>(sounds: I) -> Command
+pub fn play<I>(sounds: I) -> Command
 where I: Iterator<Item=Sound> {
     // create beep command with no tones
     let mut cmd = Command::new("beep");

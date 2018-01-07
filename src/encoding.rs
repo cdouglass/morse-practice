@@ -35,7 +35,7 @@ impl Character {
     }
 }
 
-pub fn encode(words: &'static str) -> Vec<Element> {
+pub fn encode(words: &str) -> Vec<Element> {
     let mut characters = HashMap::new();
     characters.insert('a', Character::new(vec![Dot,  Dash], 'a', "Alpha"));
     characters.insert('b', Character::new(vec![Dash, Dot,  Dot, Dot], 'b', "Bravo"));
