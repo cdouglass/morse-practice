@@ -70,8 +70,6 @@ fn good_enough(correct: i64, total: i64) -> bool {
     total >= 25 && (correct as f64 >= total as f64 * 0.9)
 }
 
-//TODO display status
-//TODO use output() instead of spawn(), to prevent overlap if i answer too fast
 fn main() {
     let chars_so_far = vec!['e', 't'];
     let mut total_correct = 0;
@@ -85,8 +83,12 @@ fn main() {
         total_answered += 1;
         if correct { total_correct += 1; }
 
+        let percentage = 100.0 * total_correct as f64 / total_answered as f64;
+        if total_answered % 5 == 0 {
+            println!("{}/{}={}%\n", total_correct, total_answered, percentage);
+        }
+
         if good_enough(total_correct, total_answered) {
-            let percentage = 100.0 * total_correct as f64 / total_answered as f64;
             println!("Awesome, you've correctly copied {} of {} words, or {}%.\nTake it up a notch by adding a new letter.", total_correct, total_answered, percentage);
             break
         }
