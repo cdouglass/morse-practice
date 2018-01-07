@@ -72,7 +72,7 @@ fn good_enough(correct: i64, total: i64) -> bool {
 }
 
 fn main() {
-    let chars_so_far = vec!['e', 't', 'a', 'o'];
+    let chars_so_far = vec!['e', 't', 'a', 'o', 'i'];
     let mut total_correct = 0;
     let mut total_answered = 0;
     loop {
