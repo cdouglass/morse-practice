@@ -55,11 +55,12 @@ fn quiz(message: &String) -> bool {
         let answer = stdin.lock().lines().next().unwrap().unwrap().clone();
 
         if &answer == message {
-            println!("Good job!");
+            println!("Good job!\n");
             break
         } else {
-            println!("Oops, you copied {}, but I sent {}. Let's try that one again.", answer, message);
             passing = false;
+            println!("Oops, you copied {}, but I sent {}. Let's try that one again. Press ENTER when you're ready.", answer, message);
+           stdin.lock().lines().next();
         }
     }
 
@@ -71,7 +72,7 @@ fn good_enough(correct: i64, total: i64) -> bool {
 }
 
 fn main() {
-    let chars_so_far = vec!['e', 't'];
+    let chars_so_far = vec!['e', 't', 'a', 'o'];
     let mut total_correct = 0;
     let mut total_answered = 0;
     loop {
@@ -85,7 +86,7 @@ fn main() {
 
         let percentage = 100.0 * total_correct as f64 / total_answered as f64;
         if total_answered % 5 == 0 {
-            println!("{}/{}={}%\n", total_correct, total_answered, percentage);
+            println!("--------\n{}/{}={}%\n--------\n", total_correct, total_answered, percentage);
         }
 
         if good_enough(total_correct, total_answered) {

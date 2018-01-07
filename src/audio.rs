@@ -51,7 +51,7 @@ pub fn play(sounds: &Vec<Sound>, farnsworth: bool) -> Command {
                 cmd.arg("-n")
                    .arg(format!("-f {}", 1));
                 if farnsworth {
-                   cmd.arg(format!("-l {}", LONG)); // screw this so far
+                   cmd.arg(format!("-l {}", 5 * SHORT)); // screw this so far
                    //cmd.arg(format!("-l {}", VERY_LONG));
                 } else {
                    cmd.arg(format!("-l {}", LONG));
