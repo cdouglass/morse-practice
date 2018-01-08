@@ -13,13 +13,12 @@ const WORD_COUNTS: [usize; 4] = [1, 2, 2, 3];
 const WORD_LENGTHS: [usize; 21] = [1, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6];
 const CHARS_SO_FAR: [char; 6] = ['e', 't', 'a', 'o', 'i', 'n'];
 
-fn quiz(message: &String) -> bool {
+fn quiz(message: &String, stdin: &std::io::Stdin) -> bool {
     let mut passing = true;
     let elements = encoding::encode(message);
 
     loop {
         audio::play(&elements).output().unwrap();
-        let stdin = std::io::stdin();
         let answer = stdin.lock().lines().next().unwrap().unwrap().clone();
 
         if &answer == message {
@@ -28,7 +27,7 @@ fn quiz(message: &String) -> bool {
         } else {
             passing = false;
             println!("You copied _{}_,\nbut I sent _{}_.\nPress ENTER to try it again.", answer, message);
-           stdin.lock().lines().next();
+            stdin.lock().lines().next();
         }
     }
 
@@ -42,12 +41,16 @@ fn main() {
     let mut total_correct = 0;
     let mut total_answered = 0;
 
+    println!("Press ENTER to start");
+    let stdin = std::io::stdin();
+    stdin.lock().lines().next();
+
     while total_answered < 25 {
         let n = *rng.choose(&WORD_COUNTS).unwrap();
         println!("Check: {}", n); // convention from radiogram preamble
 
         let message = word_gen.get_n_words(n);
-        let correct = quiz(&message);
+        let correct = quiz(&message, &stdin);
 
         total_answered += 1;
         if correct { total_correct += 1; }
