@@ -22,16 +22,18 @@ impl WordGenerator {
         self.take(n).collect::<Vec<String>>().join(" ")
     }
 
-    pub fn new(characters: Vec<char>, lengths: Vec<usize>) -> WordGenerator {
+    pub fn new(characters: &[char], lengths: &[usize]) -> WordGenerator {
         WordGenerator {
-            characters: characters,
+            characters: characters.into_iter().map(|x| *x).collect(),
             rng: rand::thread_rng(),
-            length_distribution: lengths
+            length_distribution: lengths.into_iter().map(|x| *x).collect()
         }
     }
 }
 
 //TODO do I actually need to hole an rng for this?
+//TODO also seems like slices should be fine instead of Vec if I just knew how to make lifetimes
+//work
 fn get_item<T: Clone>(vals: &Vec<T>, rng: &mut rand::ThreadRng) -> T {
     rng.choose(vals).unwrap().clone()
 }

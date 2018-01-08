@@ -9,6 +9,10 @@ mod words;
 
 use words::WordGenerator;
 
+const WORD_COUNTS: [usize; 4] = [1, 2, 2, 3];
+const WORD_LENGTHS: [usize; 21] = [1, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6];
+const CHARS_SO_FAR: [char; 6] = ['e', 't', 'a', 'o', 'i', 'n'];
+
 fn quiz(message: &String) -> bool {
     let mut passing = true;
     let elements = encoding::encode(message);
@@ -32,18 +36,14 @@ fn quiz(message: &String) -> bool {
 }
 
 fn main() {
-    let word_counts = vec![1, 2, 2, 3];
-    let word_lengths = vec![1, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6];
-    let chars_so_far = vec!['e', 't', 'a', 'o', 'i', 'n'];
-
-    let mut word_gen = WordGenerator::new(chars_so_far, word_lengths);
+    let mut word_gen = WordGenerator::new(&CHARS_SO_FAR, &WORD_LENGTHS);
     let mut rng = rand::thread_rng();
 
     let mut total_correct = 0;
     let mut total_answered = 0;
 
     while total_answered < 25 {
-        let n = *rng.choose(&word_counts).unwrap();
+        let n = *rng.choose(&WORD_COUNTS).unwrap();
         println!("Check: {}", n); // convention from radiogram preamble
 
         let message = word_gen.get_n_words(n);
