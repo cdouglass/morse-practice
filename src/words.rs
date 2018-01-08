@@ -1,34 +1,19 @@
 use rand;
 use rand::Rng;
 
-struct CharGenerator {
-    pub characters: Vec<char>,
-    pub rng: rand::ThreadRng
-}
-
-impl Iterator for CharGenerator {
-    type Item = char;
-    fn next(&mut self) -> Option<char> {
-        self.rng.choose(&self.characters).map(|x| x.clone())
-    }
-}
-
-impl CharGenerator {
-    pub fn get_n_chars(&mut self, n: usize) -> String {
-        self.take(n).collect()
-    }
-}
-
 pub struct WordGenerator {
-    char_gen: CharGenerator,
-    length_distribution: Vec<usize>
+    characters: Vec<char>,
+    length_distribution: Vec<usize>,
+    rng: rand::ThreadRng
 }
 
 impl Iterator for WordGenerator {
     type Item = String;
     fn next(&mut self) -> Option<String> {
-        let n = *self.char_gen.rng.choose(&self.length_distribution).unwrap();
-        Some(self.char_gen.get_n_chars(n))
+        let word = (0..get_item(&self.length_distribution, &mut self.rng))
+            .map(|_| { get_item(&self.characters, &mut self.rng) })
+            .collect::<String>();
+        Some(word)
     }
 }
 
@@ -38,10 +23,15 @@ impl WordGenerator {
     }
 
     pub fn new(characters: Vec<char>, lengths: Vec<usize>) -> WordGenerator {
-        let char_gen = CharGenerator { characters: characters, rng: rand::thread_rng() };
         WordGenerator {
-            char_gen: char_gen,
+            characters: characters,
+            rng: rand::thread_rng(),
             length_distribution: lengths
         }
     }
+}
+
+//TODO do I actually need to hole an rng for this?
+fn get_item<T: Clone>(vals: &Vec<T>, rng: &mut rand::ThreadRng) -> T {
+    rng.choose(vals).unwrap().clone()
 }
