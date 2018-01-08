@@ -1,34 +1,42 @@
+use rand;
 use rand::Rng;
 
-pub fn make_word(chars: &Vec<char>) -> String {
-    let mut rng = rand::thread_rng();
-    let lengths = [1, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5];
-    let mut n = *rng.choose(&lengths).unwrap();
-
-    let mut word = String::new();
-
-    while n > 0 {
-        let ch = rng.choose(chars).unwrap();
-        word.push(*ch);
-        n -= 1;
-    }
-
-    word
+struct CharGenerator {
+    pub characters: Vec<char>,
+    pub rng: rand::ThreadRng
 }
 
-//TODO dry up (this basically repeats make_word)
-pub fn make_message(chars: &Vec<char>) -> Vec<String> {
-    let mut rng = rand::thread_rng();
-    let lengths = [1, 2, 1];
-    let mut n = *rng.choose(&lengths).unwrap();
-
-    let mut words = vec![];
-
-    while n > 0 {
-        words.push(make_word(chars));
-        n -= 1;
+impl Iterator for CharGenerator {
+    type Item = char;
+    fn next(&mut self) -> Option<char> {
+        self.rng.choose(&self.characters).map(|x| x.clone())
     }
-
-    words
 }
 
+impl CharGenerator {
+    pub fn get_n_chars(&mut self, n: usize) -> String {
+        self.take(n).collect()
+    }
+}
+
+pub struct WordGenerator { char_gen: CharGenerator }
+
+impl Iterator for WordGenerator {
+    type Item = String;
+    fn next(&mut self) -> Option<String> {
+        let lengths = [1, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5];
+        let n = *self.char_gen.rng.choose(&lengths).unwrap();
+        Some(self.char_gen.get_n_chars(n))
+    }
+}
+
+impl WordGenerator {
+    pub fn get_n_words(&mut self, n: usize) -> String {
+        self.take(n).collect::<Vec<String>>().join(" ")
+    }
+
+    pub fn new(characters: Vec<char>) -> WordGenerator {
+        let char_gen = CharGenerator { characters: characters, rng: rand::thread_rng() };
+        WordGenerator{ char_gen: char_gen }
+    }
+}

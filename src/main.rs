@@ -1,10 +1,13 @@
 extern crate rand;
 
+use rand::Rng;
 use std::io::BufRead;
 
 mod audio;
 mod encoding;
 mod message_generator;
+
+use message_generator::WordGenerator;
 
 // "Farnsworth timing" is technique of adding extra space between words and characters, while
 // transmitting each individual character at normal rate
@@ -37,15 +40,18 @@ fn quiz(message: &String) -> bool {
 }
 
 fn main() {
-    let chars_so_far = vec!['e', 't', 'a', 'o', 'i'];
+    let mut word_gen = WordGenerator::new(vec!['e', 't', 'a', 'o', 'i']);
+    let wc_distribution = [1, 2];
+    let mut rng = rand::thread_rng();
+
     let mut total_correct = 0;
     let mut total_answered = 0;
 
     while total_answered < 25 {
-        let words = message_generator::make_message(&chars_so_far);
-        println!("Check: {}", words.len()); // convention from radiogram preamble
+        let n = *rng.choose(&wc_distribution).unwrap();
+        println!("Check: {}", n); // convention from radiogram preamble
 
-        let message = words.join(" ");
+        let message = word_gen.get_n_words(n);
         let correct = quiz(&message);
 
         total_answered += 1;
