@@ -24,7 +24,7 @@ pub struct WordGenerator { char_gen: CharGenerator }
 impl Iterator for WordGenerator {
     type Item = String;
     fn next(&mut self) -> Option<String> {
-        let lengths = [1, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5];
+        let lengths = [1, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6];
         let n = *self.char_gen.rng.choose(&lengths).unwrap();
         Some(self.char_gen.get_n_chars(n))
     }

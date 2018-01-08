@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-use audio::Sound;
-
 #[derive(Clone)]
 pub enum Element {
     Dot,
@@ -10,18 +8,6 @@ pub enum Element {
     WordSpace
 }
 use self::Element::*;
-
-impl Element {
-    pub fn to_sound(&self) -> Sound {
-        use audio::Sound::*;
-        match *self {
-            Dot  => ShortBeep,
-            Dash => LongBeep,
-            CharSpace => ShortSilence,
-            WordSpace => LongSilence
-        }
-    }
-}
 
 pub struct Character {
     pub elements: Vec<Element>,

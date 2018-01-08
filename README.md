@@ -4,7 +4,7 @@ Teaches decoding Morse code, using a rough version of the Koch method and Farnsw
 
 # Setup
 
-Uses the `beep` utility to make sounds, so probably needs Linux. Also assumes there's a word list file at a specific location.
+Uses the `beep` utility to make sounds, so probably needs Linux.
 
 Beep volume is set separately from normal volume in Alsamixer. You will probably want to lower it before using this program.
 
