@@ -19,13 +19,15 @@ impl CharGenerator {
     }
 }
 
-pub struct WordGenerator { char_gen: CharGenerator }
+pub struct WordGenerator {
+    char_gen: CharGenerator,
+    length_distribution: Vec<usize>
+}
 
 impl Iterator for WordGenerator {
     type Item = String;
     fn next(&mut self) -> Option<String> {
-        let lengths = [1, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6];
-        let n = *self.char_gen.rng.choose(&lengths).unwrap();
+        let n = *self.char_gen.rng.choose(&self.length_distribution).unwrap();
         Some(self.char_gen.get_n_chars(n))
     }
 }
@@ -35,8 +37,11 @@ impl WordGenerator {
         self.take(n).collect::<Vec<String>>().join(" ")
     }
 
-    pub fn new(characters: Vec<char>) -> WordGenerator {
+    pub fn new(characters: Vec<char>, lengths: Vec<usize>) -> WordGenerator {
         let char_gen = CharGenerator { characters: characters, rng: rand::thread_rng() };
-        WordGenerator{ char_gen: char_gen }
+        WordGenerator {
+            char_gen: char_gen,
+            length_distribution: lengths
+        }
     }
 }

@@ -34,9 +34,9 @@ impl Tone {
 }
 
 pub fn play(elements: &Vec<Element>) -> Command {
-    // create beep command with a single zero-duration tone
+    // create beep command with a single inaudibly low tone
     let mut cmd = Command::new("beep");
-    cmd.arg("-l 0");
+    cmd.arg("-f 1");
 
     for elt in elements {
         let tone = Tone::from_element(elt);

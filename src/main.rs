@@ -5,9 +5,9 @@ use std::io::BufRead;
 
 mod audio;
 mod encoding;
-mod message_generator;
+mod words;
 
-use message_generator::WordGenerator;
+use words::WordGenerator;
 
 fn quiz(message: &String) -> bool {
     let mut passing = true;
@@ -32,16 +32,18 @@ fn quiz(message: &String) -> bool {
 }
 
 fn main() {
-    let wc_distribution = [1, 2];
+    let word_counts = vec![1, 2, 2, 3];
+    let word_lengths = vec![1, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6];
+    let chars_so_far = vec!['e', 't', 'a', 'o', 'i', 'n'];
 
-    let mut word_gen = WordGenerator::new(vec!['e', 't', 'a', 'o', 'i', 'n']);
+    let mut word_gen = WordGenerator::new(chars_so_far, word_lengths);
     let mut rng = rand::thread_rng();
 
     let mut total_correct = 0;
     let mut total_answered = 0;
 
     while total_answered < 25 {
-        let n = *rng.choose(&wc_distribution).unwrap();
+        let n = *rng.choose(&word_counts).unwrap();
         println!("Check: {}", n); // convention from radiogram preamble
 
         let message = word_gen.get_n_words(n);
