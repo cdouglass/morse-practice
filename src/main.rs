@@ -27,7 +27,7 @@ fn quiz(message: &String) -> bool {
         let answer = stdin.lock().lines().next().unwrap().unwrap().clone();
 
         if &answer == message {
-            println!("Good job!\n");
+            println!("--------");
             break
         } else {
             passing = false;
@@ -40,7 +40,7 @@ fn quiz(message: &String) -> bool {
 }
 
 fn main() {
-    let mut word_gen = WordGenerator::new(vec!['e', 't', 'a', 'o', 'i']);
+    let mut word_gen = WordGenerator::new(vec!['e', 't', 'a', 'o', 'i', 'n']);
     let wc_distribution = [1, 2];
     let mut rng = rand::thread_rng();
 
