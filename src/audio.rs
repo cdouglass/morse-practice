@@ -2,7 +2,7 @@ use std::process::Command;
 
 // 20 wpm <-> dot length 60ms
 const PITCH: u32 = 220; // A below middle C
-const SHORT: u32 = 100;
+const SHORT: u32 = 80;
 const LONG: u32 = 3 * SHORT;
 const VERY_LONG: u32 = 7 * SHORT;
 
@@ -19,7 +19,7 @@ use self::Sound::*;
 // Make it easy to tell when the tone is ending
 fn add_click(cmd: &mut Command) {
     cmd.arg("-n")
-       .arg(format!("-f {}", 110))
+       .arg(format!("-f {}", PITCH * 3 / 4))
        .arg(format!("-l {}", 2));
 }
 
