@@ -11,8 +11,8 @@ use words::WordGenerator;
 
 const WORD_COUNTS: [usize; 4] = [1, 2, 2, 3];
 const WORD_LENGTHS: [usize; 21] = [1, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6];
-const CHARS_SO_FAR: [char; 12] = ['e', 't', 'a', 'o', 'i', 'n', 's', 'h', 'r', 'd', 'l', 'u'];
-const DOUBLES: [char; 3] = ['a', 'i', 'n'];
+const CHARS_SO_FAR: [char; 13] = ['e', 't', 'a', 'o', 'i', 'n', 's', 'h', 'r', 'd', 'l', 'u', 'm'];
+const DOUBLES: [char; 4] = ['a', 'i', 'n', 'm'];
 const TRIPLES: [char; 5] = ['o', 's', 'r', 'd', 'u'];
 const QUARTETS: [char; 2] = ['h', 'l'];
 
