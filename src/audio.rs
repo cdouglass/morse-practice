@@ -3,7 +3,7 @@ use std::process::Command;
 use encoding::Element;
 
 // 20 wpm <-> dot length 60ms
-const PITCH: u32 = 220; // A below middle C
+const PITCH: u32 = 150;
 const TINY: u32 = 2;
 
 const DOT_LENGTH: u32 = 80;
