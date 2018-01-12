@@ -11,10 +11,10 @@ use words::WordGenerator;
 
 const WORD_COUNTS: [usize; 4] = [1, 2, 2, 3];
 const WORD_LENGTHS: [usize; 21] = [1, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6];
-const CHARS_SO_FAR: [char; 16] = ['e', 't', 'a', 'o', 'i', 'n', 's', 'h', 'r', 'd', 'l', 'u', 'm', 'w', 'k', 'p'];
+const CHARS_SO_FAR: [char; 21] = ['e', 't', 'a', 'o', 'i', 'n', 's', 'h', 'r', 'd', 'l', 'u', 'm', 'w', 'k', 'p', 'g', 'c', 'y', 'b', 'f'];
 const DOUBLES: [char; 4] = ['a', 'i', 'n', 'm'];
-const TRIPLES: [char; 7] = ['o', 's', 'r', 'd', 'u', 'w', 'k'];
-const QUARTETS: [char; 3] = ['h', 'l', 'p'];
+const TRIPLES: [char; 8] = ['o', 's', 'r', 'd', 'u', 'w', 'k', 'g'];
+const QUARTETS: [char; 7] = ['h', 'l', 'p', 'c', 'y', 'b', 'f'];
 
 fn quiz(message: &String, stdin: &std::io::Stdin) -> bool {
     let mut passing = true;
@@ -37,6 +37,7 @@ fn quiz(message: &String, stdin: &std::io::Stdin) -> bool {
     passing
 }
 
+// TODO cli arg to pick char set
 fn main() {
     let mut word_gen = WordGenerator::new(&CHARS_SO_FAR, &WORD_LENGTHS);
     let mut rng = rand::thread_rng();
