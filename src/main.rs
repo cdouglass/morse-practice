@@ -11,10 +11,11 @@ use words::WordGenerator;
 
 const WORD_COUNTS: [usize; 4] = [1, 2, 2, 3];
 const WORD_LENGTHS: [usize; 21] = [1, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6];
-const CHARS_SO_FAR: [char; 21] = ['e', 't', 'a', 'o', 'i', 'n', 's', 'h', 'r', 'd', 'l', 'u', 'm', 'w', 'k', 'p', 'g', 'c', 'y', 'b', 'f'];
+const CHARS_SO_FAR: [char; 26] = ['e', 't', 'a', 'o', 'i', 'n', 's', 'h', 'r', 'd', 'l', 'u', 'm', 'w', 'k', 'p', 'g', 'c', 'y', 'b', 'f', 'q', 'j', 'v', 'x', 'z'];
 const DOUBLES: [char; 4] = ['a', 'i', 'n', 'm'];
 const TRIPLES: [char; 8] = ['o', 's', 'r', 'd', 'u', 'w', 'k', 'g'];
-const QUARTETS: [char; 7] = ['h', 'l', 'p', 'c', 'y', 'b', 'f'];
+//const QUARTETS: [char; 6] = ['c', 'y', 'b', 'q', 'x', 'z'];
+const QUARTETS: [char; 12] = ['h', 'l', 'p', 'c', 'y', 'b', 'f', 'q', 'j', 'v', 'x', 'z'];
 
 fn quiz(message: &String, stdin: &std::io::Stdin) -> bool {
     let mut passing = true;
