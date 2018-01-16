@@ -1,6 +1,7 @@
 extern crate rand;
 
 use rand::Rng;
+use std::env;
 use std::io::BufRead;
 
 mod audio;
@@ -11,11 +12,19 @@ use words::WordGenerator;
 
 const WORD_COUNTS: [usize; 4] = [1, 2, 2, 3];
 const WORD_LENGTHS: [usize; 21] = [1, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6];
-const CHARS_SO_FAR: [char; 26] = ['e', 't', 'a', 'o', 'i', 'n', 's', 'h', 'r', 'd', 'l', 'u', 'm', 'w', 'k', 'p', 'g', 'c', 'y', 'b', 'f', 'q', 'j', 'v', 'x', 'z'];
-const DOUBLES: [char; 4] = ['a', 'i', 'n', 'm'];
-const TRIPLES: [char; 8] = ['o', 's', 'r', 'd', 'u', 'w', 'k', 'g'];
-//const QUARTETS: [char; 6] = ['c', 'y', 'b', 'q', 'x', 'z'];
-const QUARTETS: [char; 12] = ['h', 'l', 'p', 'c', 'y', 'b', 'f', 'q', 'j', 'v', 'x', 'z'];
+
+fn characters(a: Option<u32>) -> Vec<char> {
+    let doubles = "ainm";
+    let triples = "osrduwkg";
+    let quartets = "hlpcybfqjvxz";
+    let chosen = match a {
+      Some(2) => doubles.to_owned(),
+      Some(3) => triples.to_owned(),
+      Some(4) => quartets.to_owned(),
+      None | Some(_) => String::from(doubles) + triples + quartets,
+    };
+    chosen.chars().collect()
+}
 
 fn quiz(message: &String, stdin: &std::io::Stdin) -> bool {
     let mut passing = true;
@@ -38,9 +47,13 @@ fn quiz(message: &String, stdin: &std::io::Stdin) -> bool {
     passing
 }
 
-// TODO cli arg to pick char set
 fn main() {
-    let mut word_gen = WordGenerator::new(&CHARS_SO_FAR, &WORD_LENGTHS);
+    let mut args = env::args();
+    args.next();
+    let arg: String = args.next().unwrap_or(String::new());
+    let mode: Option<u32> = arg.trim().parse().ok();
+
+    let mut word_gen = WordGenerator::new(&characters(mode), &WORD_LENGTHS);
     let mut rng = rand::thread_rng();
 
     let mut total_correct = 0;

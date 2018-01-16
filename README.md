@@ -16,15 +16,22 @@ $ sudo apt-get install beep
 
 # Operation
 
+To use the entire alphabet:
+
 ```
 $ cargo run
+```
+
+To use only characters whose encoding uses a certain number of tones, give the number of tones as a CLI argument. For example, to use only the letters {a, i, m, n}:
+
+```
+$ cargo run 2
 ```
 
 # TODO (maybe)
 
 * CLI options for word generation
   * real words
-  * chars all same number of elements
   * all dashes
   * all dots
   * maybe difficulty level too, eg average word and phrase length?
