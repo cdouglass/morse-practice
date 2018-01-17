@@ -10,7 +10,7 @@ pub struct WordGenerator {
 impl Iterator for WordGenerator {
     type Item = String;
     fn next(&mut self) -> Option<String> {
-        let length = self.rng.gen_range(1, self.max_length);
+        let length = self.rng.gen_range(2, self.max_length);
         let word = (0..length)
             .map(|_| { get_item(&self.characters, &mut self.rng) })
             .collect::<String>();
