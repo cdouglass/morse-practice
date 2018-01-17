@@ -10,8 +10,8 @@ mod words;
 
 use words::WordGenerator;
 
-const WORD_COUNTS: [usize; 4] = [1, 2, 2, 3];
-const WORD_LENGTHS: [usize; 21] = [1, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6];
+const MAX_WORD_COUNT: usize = 3;
+const MAX_WORD_LENGTH: usize = 6;
 
 fn characters(a: Option<u32>) -> Vec<char> {
     let doubles = "ainm";
@@ -53,7 +53,7 @@ fn main() {
     let arg: String = args.next().unwrap_or(String::new());
     let mode: Option<u32> = arg.trim().parse().ok();
 
-    let mut word_gen = WordGenerator::new(&characters(mode), &WORD_LENGTHS);
+    let mut word_gen = WordGenerator::new(&characters(mode), MAX_WORD_LENGTH);
     let mut rng = rand::thread_rng();
 
     let mut total_correct = 0;
@@ -64,7 +64,7 @@ fn main() {
     stdin.lock().lines().next();
 
     while total_answered < 25 {
-        let n = *rng.choose(&WORD_COUNTS).unwrap();
+        let n = rng.gen_range(1, MAX_WORD_COUNT + 1);
         println!("Check: {}", n); // convention from radiogram preamble
 
         let message = word_gen.get_n_words(n);

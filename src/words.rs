@@ -3,14 +3,15 @@ use rand::Rng;
 
 pub struct WordGenerator {
     characters: Vec<char>,
-    length_distribution: Vec<usize>,
+    max_length: usize,
     rng: rand::ThreadRng
 }
 
 impl Iterator for WordGenerator {
     type Item = String;
     fn next(&mut self) -> Option<String> {
-        let word = (0..get_item(&self.length_distribution, &mut self.rng))
+        let length = self.rng.gen_range(1, self.max_length);
+        let word = (0..length)
             .map(|_| { get_item(&self.characters, &mut self.rng) })
             .collect::<String>();
         Some(word)
@@ -22,16 +23,16 @@ impl WordGenerator {
         self.take(n).collect::<Vec<String>>().join(" ")
     }
 
-    pub fn new(characters: &[char], lengths: &[usize]) -> WordGenerator {
+    pub fn new(characters: &[char], max_length: usize) -> WordGenerator {
         WordGenerator {
             characters: characters.into_iter().map(|x| *x).collect(),
-            rng: rand::thread_rng(),
-            length_distribution: lengths.into_iter().map(|x| *x).collect()
+            max_length: max_length,
+            rng: rand::thread_rng()
         }
     }
 }
 
-//TODO do I actually need to hole an rng for this?
+//TODO do I actually need to hold an rng for this?
 //TODO also seems like slices should be fine instead of Vec if I just knew how to make lifetimes
 //work
 fn get_item<T: Clone>(vals: &Vec<T>, rng: &mut rand::ThreadRng) -> T {
