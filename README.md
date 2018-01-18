@@ -8,7 +8,9 @@ Uses the `beep` utility to make sounds, so probably needs Linux.
 
 Beep volume is set separately from normal volume in Alsamixer. You will probably want to lower it before using this program.
 
-On my machine at least, whether `beep` will produce a sound seems to depend on several things. Plugging in the laptop seems to help but this may be superstition.
+On my machine at least, whether `beep` will produce a sound seems to depend on several things:
+* Laptop should not be running on battery
+* If laptop is running on battery and failing to beep, running `speaker-test` in another terminal re-enables beep at least for the duration of the test
 
 ```
 $ sudo apt-get install beep
