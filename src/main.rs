@@ -1,17 +1,24 @@
 extern crate rand;
+extern crate regex;
 
 use rand::Rng;
+use regex::Regex;
+
 use std::env;
+use std::fs::File;
 use std::io::BufRead;
+use std::io::BufReader;
 
 mod audio;
 mod encoding;
 mod words;
 
 use words::WordGenerator;
+use words::WordPicker;
 
-const MAX_WORD_COUNT: usize = 3;
-const MAX_WORD_LENGTH: usize = 6;
+const MAX_WORD_COUNT: usize = 5;
+const MAX_WORD_LENGTH: usize = 7;
+const DICT_FILENAME: &str = "/usr/share/dict/words";
 
 fn characters(a: Option<u32>) -> Vec<char> {
     let doubles = "ainm";
@@ -24,6 +31,21 @@ fn characters(a: Option<u32>) -> Vec<char> {
       None | Some(_) => String::from(doubles) + triples + quartets,
     };
     chosen.chars().collect()
+}
+
+//TODO filtering might belong in WordPicker::new instead
+fn load_dict(filename: &str, charset: &Vec<char>) -> Vec<String> {
+    //TODO below is amazingly stupid
+    let cs = String::from(charset.iter().map(|c| vec![c.clone()].into_iter().collect()).collect::<Vec<String>>().join(""));
+    let r = String::from("^[") + &cs + "]*$";
+    let regex = Regex::new(&r).unwrap();
+
+    let dict_file = File::open(filename).unwrap();
+    BufReader::new(dict_file)
+        .lines()
+        .map(|line| { line.unwrap() })
+        .filter(|word| { regex.is_match(word) })
+        .collect()
 }
 
 fn quiz(message: &String, stdin: &std::io::Stdin) -> bool {
@@ -52,8 +74,12 @@ fn main() {
     args.next();
     let arg: String = args.next().unwrap_or(String::new());
     let mode: Option<u32> = arg.trim().parse().ok();
+    let char_set = characters(mode);
 
-    let mut word_gen = WordGenerator::new(&characters(mode), MAX_WORD_LENGTH);
+    let dict = load_dict(DICT_FILENAME, &char_set);
+    let mut word_picker = WordPicker::new(dict);
+
+    let mut word_gen = WordGenerator::new(&char_set, MAX_WORD_LENGTH);
     let mut rng = rand::thread_rng();
 
     let mut total_correct = 0;
@@ -67,7 +93,8 @@ fn main() {
         let n = rng.gen_range(1, MAX_WORD_COUNT + 1);
         println!("Check: {}", n); // convention from radiogram preamble
 
-        let message = word_gen.get_n_words(n);
+        let message = word_picker.get_n_words(n);
+        //let message = word_gen.get_n_words(n);
         let correct = quiz(&message, &stdin);
 
         total_answered += 1;
