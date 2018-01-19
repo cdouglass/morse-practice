@@ -10,14 +10,15 @@ use std::io::BufRead;
 use std::io::BufReader;
 
 mod audio;
+mod dvorak;
 mod encoding;
 mod words;
 
 use words::WordGenerator;
 use words::WordPicker;
 
-const MAX_WORD_COUNT: usize = 5;
-const MAX_WORD_LENGTH: usize = 7;
+const MAX_WORD_COUNT: usize = 3;
+const MAX_WORD_LENGTH: usize = 7; // only limits random words, not real ones
 const DICT_FILENAME: &str = "/usr/share/dict/words";
 
 fn characters(a: Option<u32>) -> Vec<char> {
@@ -28,6 +29,9 @@ fn characters(a: Option<u32>) -> Vec<char> {
       Some(2) => doubles.to_owned(),
       Some(3) => triples.to_owned(),
       Some(4) => quartets.to_owned(),
+      Some(0) => {
+          return dvorak::home();
+      }, // TODO better interface to choose
       None | Some(_) => String::from(doubles) + triples + quartets,
     };
     chosen.chars().collect()
@@ -93,8 +97,8 @@ fn main() {
         let n = rng.gen_range(1, MAX_WORD_COUNT + 1);
         println!("Check: {}", n); // convention from radiogram preamble
 
-        let message = word_picker.get_n_words(n);
-        //let message = word_gen.get_n_words(n);
+        //let message = word_picker.get_n_words(n);
+        let message = word_gen.get_n_words(n);
         let correct = quiz(&message, &stdin);
 
         total_answered += 1;
