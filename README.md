@@ -37,3 +37,4 @@ $ cargo run 2
   * all dashes
   * all dots
   * maybe difficulty level too, eg average word and phrase length?
+  * touch-typing options - home row, left/right hands, others?
