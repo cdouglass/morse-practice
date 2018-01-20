@@ -3,7 +3,7 @@ use std::process::Command;
 use encoding::Element;
 
 // 20 wpm <-> dot length 60ms
-const PITCH: u32 = 150;
+const PITCH: u32 = 220;
 const TINY: u32 = 2;
 
 const DOT_LENGTH: u32 = 80;
@@ -13,7 +13,7 @@ const LONG: u32 = 3 * DOT_LENGTH;
 // transmitting each individual character at normal rate
 // Spaces will actually all be one dot length longer than stated due to delay added after audible tones
 const FARNSWORTH_LONG: u32 = 5 * DOT_LENGTH; // Space between characters; normally 3 * DOT_LENGTH
-const FARNSWORTH_VERY_LONG: u32 = 7 * LONG; // Space between words; normally 7 * DOT_LENGTH
+const FARNSWORTH_VERY_LONG: u32 = 10 * DOT_LENGTH; // Space between words; normally 7 * DOT_LENGTH
 
 
 struct Tone {
@@ -48,8 +48,7 @@ pub fn play(elements: &Vec<Element>) -> Command {
 
 fn play_tone(mut cmd: &mut Command, tone: Tone) {
     if tone.audible {
-        add_beep(&mut cmd, PITCH, tone.length, 0);
-        add_beep(&mut cmd, PITCH * 3 / 4, TINY, DOT_LENGTH); // click to make clear tone has ended
+        add_beep(&mut cmd, PITCH, tone.length, DOT_LENGTH);
     } else {
         add_beep(&mut cmd, 1, tone.length, 0);
     }

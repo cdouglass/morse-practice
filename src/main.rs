@@ -15,24 +15,23 @@ mod encoding;
 mod words;
 
 use words::WordGenerator;
-use words::WordPicker;
 
 const MAX_WORD_COUNT: usize = 3;
 const MAX_WORD_LENGTH: usize = 7; // only limits random words, not real ones
 const DICT_FILENAME: &str = "/usr/share/dict/words";
 
-fn characters(a: Option<u32>) -> Vec<char> {
+// TODO better interface to choose
+fn characters(a: u32) -> Vec<char> {
     let doubles = "ainm";
     let triples = "osrduwkg";
     let quartets = "hlpcybfqjvxz";
     let chosen = match a {
-      Some(2) => doubles.to_owned(),
-      Some(3) => triples.to_owned(),
-      Some(4) => quartets.to_owned(),
-      Some(0) => {
-          return dvorak::home();
-      }, // TODO better interface to choose
-      None | Some(_) => String::from(doubles) + triples + quartets,
+      0 => { return dvorak::minimal(); },
+      1 => { return dvorak::home(); },
+      2 => doubles.to_owned(),
+      3 => triples.to_owned(),
+      4 => quartets.to_owned(),
+      _ => String::from(doubles) + triples + quartets,
     };
     chosen.chars().collect()
 }
@@ -77,13 +76,19 @@ fn main() {
     let mut args = env::args();
     args.next();
     let arg: String = args.next().unwrap_or(String::new());
-    let mode: Option<u32> = arg.trim().parse().ok();
-    let char_set = characters(mode);
 
-    let dict = load_dict(DICT_FILENAME, &char_set);
-    let mut word_picker = WordPicker::new(dict);
+    let mut word_gen = match arg.trim().parse().ok() {
+        Some(n) => {
+            let char_set = characters(n);
+            WordGenerator::new(&char_set, MAX_WORD_LENGTH)
+        },
+        None => {
+            let char_set = characters(999);
+            let dict = load_dict(DICT_FILENAME, &char_set);
+            WordGenerator::new_with_dict(dict)
+        }
+    };
 
-    let mut word_gen = WordGenerator::new(&char_set, MAX_WORD_LENGTH);
     let mut rng = rand::thread_rng();
 
     let mut total_correct = 0;
@@ -97,7 +102,6 @@ fn main() {
         let n = rng.gen_range(1, MAX_WORD_COUNT + 1);
         println!("Check: {}", n); // convention from radiogram preamble
 
-        //let message = word_picker.get_n_words(n);
         let message = word_gen.get_n_words(n);
         let correct = quiz(&message, &stdin);
 

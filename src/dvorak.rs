@@ -1,5 +1,21 @@
+use std::iter::Extend;
+
 pub fn home() -> Vec<char> {
-    vec!['a', 'o', 'e', 'u', 'i', 'd', 'h', 't', 'n', 's']
+    let mut cs = l_index().home;
+    cs.extend(r_index().home);
+    cs.extend(l_middle().home);
+    cs.extend(r_middle().home);
+    cs.extend(l_ring().home);
+    cs.extend(r_ring().home);
+    cs.extend(l_pinky().home);
+    cs.extend(r_pinky().home);
+    cs
+}
+
+pub fn minimal() -> Vec<char> {
+    let mut cs = l_index().home;
+    cs.extend(r_index().home);
+    cs
 }
 
 pub struct Finger {
