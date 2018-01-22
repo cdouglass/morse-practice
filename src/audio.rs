@@ -12,8 +12,8 @@ const LONG: u32 = 3 * DOT_LENGTH;
 // "Farnsworth timing" is technique of adding extra space between words and characters, while
 // transmitting each individual character at normal rate
 // Spaces will actually all be one dot length longer than stated due to delay added after audible tones
-const FARNSWORTH_LONG: u32 = 5 * DOT_LENGTH; // Space between characters; normally 3 * DOT_LENGTH
-const FARNSWORTH_VERY_LONG: u32 = 10 * DOT_LENGTH; // Space between words; normally 7 * DOT_LENGTH
+const FARNSWORTH_LONG: u32 = 2 * DOT_LENGTH; // Space between characters; normally 3 * DOT_LENGTH
+const FARNSWORTH_VERY_LONG: u32 = 6 * DOT_LENGTH; // Space between words; normally 7 * DOT_LENGTH
 
 
 struct Tone {
@@ -37,6 +37,7 @@ pub fn play(elements: &Vec<Element>) -> Command {
     // create beep command with a single inaudibly low tone
     let mut cmd = Command::new("beep");
     cmd.arg("-f 1");
+    cmd.arg("-l 500");
 
     for elt in elements {
         let tone = Tone::from_element(elt);
