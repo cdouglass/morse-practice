@@ -64,6 +64,7 @@ fn quiz(message: &String, stdin: &std::io::Stdin) -> bool {
             break
         } else {
             passing = false;
+            audio::bzzt().output().unwrap();
             println!("You copied _{}_,\nbut I sent _{}_.\nPress ENTER to try it again.", answer, message);
             stdin.lock().lines().next();
         }

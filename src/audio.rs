@@ -47,6 +47,14 @@ pub fn play(elements: &Vec<Element>) -> Command {
     cmd
 }
 
+pub fn bzzt() -> Command {
+    let mut cmd = Command::new("beep");
+    cmd.arg("-f 100");
+    cmd.arg("-l 500");
+
+    cmd
+}
+
 fn play_tone(mut cmd: &mut Command, tone: Tone) {
     if tone.audible {
         add_beep(&mut cmd, PITCH, tone.length, DOT_LENGTH);
