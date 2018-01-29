@@ -59,7 +59,7 @@ fn quiz(message: &String, stdin: &std::io::Stdin) -> bool {
         audio::play(&elements).output().unwrap();
         let answer = stdin.lock().lines().next().unwrap().unwrap().clone();
 
-        if &answer == message {
+        if &answer.trim() == message {
             println!("--------");
             break
         } else {
