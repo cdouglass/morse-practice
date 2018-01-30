@@ -76,17 +76,17 @@ fn quiz(message: &String, stdin: &std::io::Stdin) -> bool {
 fn main() {
     let mut args = env::args();
     args.next();
-    let arg: String = args.next().unwrap_or(String::new());
+    let arg0: String = args.next().unwrap_or(String::from("999"));
+    let char_set = characters(arg0.trim().parse().unwrap());
 
-    let mut word_gen = match arg.trim().parse().ok() {
-        Some(n) => {
-            let char_set = characters(n);
-            WordGenerator::new(&char_set, MAX_WORD_LENGTH)
-        },
-        None => {
-            let char_set = characters(999);
+    let mut word_gen = match args.next() {
+        // doesn't care what th arg is becauso I'm lazy
+        Some(_) => {
             let dict = load_dict(DICT_FILENAME, &char_set);
             WordGenerator::new_with_dict(dict)
+        },
+        _ => {
+            WordGenerator::new(&char_set, MAX_WORD_LENGTH)
         }
     };
 
