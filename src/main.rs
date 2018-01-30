@@ -48,6 +48,7 @@ fn load_dict(filename: &str, charset: &Vec<char>) -> Vec<String> {
         .lines()
         .map(|line| { line.unwrap() })
         .filter(|word| { regex.is_match(word) })
+        .filter(|word| { word.len() < 7 })
         .collect()
 }
 
