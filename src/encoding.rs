@@ -61,7 +61,7 @@ pub fn encode(words: &str) -> Vec<Element> {
     characters.insert('7', Character::new(vec![Dash,  Dash, Dot,  Dot,  Dot], '7', "Seven"));
     characters.insert('8', Character::new(vec![Dash,  Dash, Dash, Dot,  Dot], '8', "Eight"));
     characters.insert('9', Character::new(vec![Dash,  Dash, Dash, Dash, Dot], '9', "Nine"));
-    characters.insert('0', Character::new(vec![Dash,  Dash, Dash, Dash, Dash], '0', "Ten"));
+    characters.insert('0', Character::new(vec![Dash,  Dash, Dash, Dash, Dash], '0', "Zero"));
 
     words.chars().into_iter()
         .filter_map(|c| characters.get(&c))
