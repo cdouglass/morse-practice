@@ -1,99 +1,104 @@
-use std::iter::Extend;
-
 //TODO instead have collection of Key structs and filter them
 pub fn home() -> Vec<char> {
-    let mut cs = l_index().home;
-    cs.extend(r_index().home);
-    cs.extend(l_middle().home);
-    cs.extend(r_middle().home);
-    cs.extend(l_ring().home);
-    cs.extend(r_ring().home);
-    cs.extend(l_pinky().home);
-    cs.extend(r_pinky().home);
-    cs
+    all_keys().into_iter()
+        .filter(|k| {k.row == Home})
+        .map(|k| {k.character})
+        .collect()
 }
 
 pub fn minimal() -> Vec<char> {
-   let mut cs = home();
-   cs.extend(vec!['p', 'y', 'f', 'g', 'c', 'r', 'l']);
-   cs
+    all_keys().into_iter()
+        .filter(|k| {k.row == Home || k.row == Upper})
+        .map(|k| {k.character})
+        .collect()
 }
 
-pub struct Finger {
-  digits: Vec<char>,
-  upper:  Vec<char>,
-  home:   Vec<char>,
-  lower:  Vec<char>,
+use self::Column::*;
+use self::Row::*;
+use self::Side::*;
+fn all_keys() -> Vec<Key> {
+    let mut keys = vec![];
+
+    keys.push(Key::new('1', Pinky,        Digits, Left));
+    keys.push(Key::new('2', Ring,         Digits, Left));
+    keys.push(Key::new('3', Middle,       Digits, Left));
+    keys.push(Key::new('4', Index,        Digits, Left));
+    keys.push(Key::new('5', IndexStretch, Digits, Left));
+    keys.push(Key::new('6', IndexStretch, Digits, Right));
+    keys.push(Key::new('7', Index,        Digits, Right));
+    keys.push(Key::new('8', Middle,       Digits, Right));
+    keys.push(Key::new('9', Ring,         Digits, Right));
+    keys.push(Key::new('0', Pinky,        Digits, Right));
+
+    // keys.push(Key::new('\'', Pinky,       Upper, Left));
+    // keys.push(Key::new(',', Ring,         Upper, Left));
+    // keys.push(Key::new('.', Middle,       Upper, Left));
+    keys.push(Key::new('p', Index,        Upper, Left));
+    keys.push(Key::new('y', IndexStretch, Upper, Left));
+    keys.push(Key::new('f', IndexStretch, Upper, Right));
+    keys.push(Key::new('g', Index,        Upper, Right));
+    keys.push(Key::new('c', Middle,       Upper, Right));
+    keys.push(Key::new('r', Ring,         Upper, Right));
+    keys.push(Key::new('l', Pinky,        Upper, Right));
+
+    keys.push(Key::new('a', Pinky,        Home, Left));
+    keys.push(Key::new('o', Ring,         Home, Left));
+    keys.push(Key::new('e', Middle,       Home, Left));
+    keys.push(Key::new('u', Index,        Home, Left));
+    keys.push(Key::new('i', IndexStretch, Home, Left));
+    keys.push(Key::new('d', IndexStretch, Home, Right));
+    keys.push(Key::new('h', Index,        Home, Right));
+    keys.push(Key::new('t', Middle,       Home, Right));
+    keys.push(Key::new('n', Ring,         Home, Right));
+    keys.push(Key::new('s', Pinky,        Home, Right));
+
+    //keys.push(Key::new(';', Pinky,        Lower, Left));
+    keys.push(Key::new('q', Ring,         Lower, Left));
+    keys.push(Key::new('j', Middle,       Lower, Left));
+    keys.push(Key::new('k', Index,        Lower, Left));
+    keys.push(Key::new('x', IndexStretch, Lower, Left));
+    keys.push(Key::new('b', IndexStretch, Lower, Right));
+    keys.push(Key::new('m', Index,        Lower, Right));
+    keys.push(Key::new('w', Middle,       Lower, Right));
+    keys.push(Key::new('v', Ring,         Lower, Right));
+    keys.push(Key::new('z', Pinky,        Lower, Right));
+
+    keys
 }
 
-fn l_pinky() -> Finger {
-    Finger {
-        digits: vec!['1', '2'],
-        upper:  vec!['\'', '"'],
-        home:   vec!['a'],
-        lower:  vec![':']
+struct Key {
+    pub character: char,
+    pub column: Column,
+    pub row: Row,
+    pub side: Side,
+}
+
+impl Key {
+    pub fn new(x: char, c: Column, r: Row, s: Side) -> Key {
+        Key {character: x, column: c, row: r, side: s}
     }
 }
 
-fn r_pinky() -> Finger {
-    Finger {
-        digits: vec!['0'],
-        upper:  vec!['l', '?'],
-        home:   vec!['s'],
-        lower:  vec!['z']
-    }
+// TODO: Better name
+#[derive(PartialEq)]
+enum Column {
+    Pinky,
+    Ring,
+    Middle,
+    Index,
+    IndexStretch
 }
 
-fn l_ring() -> Finger {
-    Finger {
-        digits: vec!['2'],
-        upper:  vec![','],
-        home:   vec!['o'],
-        lower:  vec!['q']
-    }
+#[derive(PartialEq)]
+enum Row {
+    Digits,
+    Upper,
+    Home,
+    Lower
 }
 
-fn r_ring() -> Finger {
-    Finger {
-        digits: vec!['9'],
-        upper:  vec!['r'],
-        home:   vec!['n'],
-        lower:  vec!['v']
-    }
-}
-
-fn l_middle() -> Finger {
-    Finger {
-        digits: vec!['3'],
-        upper:  vec!['.'],
-        home:   vec!['e'],
-        lower:  vec!['j']
-    }
-}
-
-fn r_middle() -> Finger {
-    Finger {
-        digits: vec!['8'],
-        upper:  vec!['c'],
-        home:   vec!['t'],
-        lower:  vec!['w']
-    }
-}
-
-fn l_index() -> Finger {
-    Finger {
-        digits: vec!['4', '5'],
-        upper:  vec!['p', 'y'],
-        home:   vec!['u', 'i'],
-        lower:  vec!['k', 'x']
-    }
-}
-
-fn r_index() -> Finger {
-    Finger {
-        digits: vec!['6', '7'],
-        upper:  vec!['f', 'g'],
-        home:   vec!['d', 'h'],
-        lower:  vec!['b', 'm']
-    }
+#[derive(PartialEq)]
+enum Side {
+    Left,
+    Right
 }

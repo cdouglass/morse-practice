@@ -4,7 +4,6 @@ use encoding::Element;
 
 // 20 wpm <-> dot length 60ms
 const PITCH: u32 = 210;
-const TINY: u32 = 2;
 
 const DOT_LENGTH: u32 = 80;
 const LONG: u32 = 3 * DOT_LENGTH;
