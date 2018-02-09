@@ -3,7 +3,7 @@ use std::process::Command;
 use encoding::Element;
 
 // 20 wpm <-> dot length 60ms
-const PITCH: u32 = 220;
+const PITCH: u32 = 210;
 const TINY: u32 = 2;
 
 const DOT_LENGTH: u32 = 80;
@@ -37,7 +37,7 @@ pub fn play(elements: &Vec<Element>) -> Command {
     // create beep command with a single inaudibly low tone
     let mut cmd = Command::new("beep");
     cmd.arg("-f 1");
-    cmd.arg("-l 500");
+    cmd.arg("-D 1000");
 
     for elt in elements {
         let tone = Tone::from_element(elt);
