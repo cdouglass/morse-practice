@@ -25,12 +25,14 @@ fn characters(a: u32) -> Vec<char> {
     let doubles = "ainm";
     let triples = "osrduwkg";
     let quartets = "hlpcybfqjvxz";
+    let digits = "23456789";
     let chosen = match a {
       0 => { return dvorak::minimal(); },
       1 => { return dvorak::home(); },
       2 => doubles.to_owned(),
       3 => triples.to_owned(),
       4 => quartets.to_owned(),
+      5 => digits.to_owned(),
       _ => String::from(doubles) + triples + quartets,
     };
     chosen.chars().collect()
