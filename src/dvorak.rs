@@ -1,5 +1,6 @@
 use std::iter::Extend;
 
+//TODO instead have collection of Key structs and filter them
 pub fn home() -> Vec<char> {
     let mut cs = l_index().home;
     cs.extend(r_index().home);
@@ -13,9 +14,9 @@ pub fn home() -> Vec<char> {
 }
 
 pub fn minimal() -> Vec<char> {
-    let mut cs = l_index().home;
-    cs.extend(r_index().home);
-    cs
+   let mut cs = home();
+   cs.extend(vec!['p', 'y', 'f', 'g', 'c', 'r', 'l']);
+   cs
 }
 
 pub struct Finger {
