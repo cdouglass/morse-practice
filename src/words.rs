@@ -3,6 +3,7 @@ use rand::Rng;
 
 pub struct WordGenerator {
     characters: Vec<char>,
+    min_length: usize,
     max_length: usize,
     dict: Option<Vec<String>>,
     rng: rand::ThreadRng
@@ -19,7 +20,7 @@ impl Iterator for WordGenerator {
                 Some(get_item(d, &mut self.rng))
             },
             None => {
-                let length = self.rng.gen_range(2, self.max_length + 1);
+                let length = self.rng.gen_range(self.min_length, self.max_length + 1);
                 let word = (0..length)
                     .map(|_| { get_item(&self.characters, &mut self.rng) })
                     .collect::<String>();
@@ -34,9 +35,10 @@ impl WordGenerator {
         self.take(n).collect::<Vec<String>>().join(" ")
     }
 
-    pub fn new(characters: &[char], max_length: usize) -> WordGenerator {
+    pub fn new(characters: &[char], min_length: usize, max_length: usize) -> WordGenerator {
         WordGenerator {
             characters: characters.into_iter().map(|x| *x).collect(),
+            min_length: min_length,
             max_length: max_length,
             dict: None,
             rng: rand::thread_rng()
@@ -46,6 +48,7 @@ impl WordGenerator {
     pub fn new_with_dict(dict: Vec<String>) -> WordGenerator {
         WordGenerator {
             characters: vec![],
+            min_length: 0,
             max_length: 0,
             dict: Some(dict),
             rng: rand::thread_rng()

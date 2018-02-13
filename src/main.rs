@@ -16,8 +16,10 @@ mod words;
 
 use words::WordGenerator;
 
-const MAX_WORD_COUNT: usize = 3;
-const MAX_WORD_LENGTH: usize = 7; // only limits random words, not real ones
+const MIN_WORD_COUNT: usize = 2;
+const MAX_WORD_COUNT: usize = 4;
+const MIN_WORD_LENGTH: usize = 2; // only limits random words, not real ones
+const MAX_WORD_LENGTH: usize = 7;
 const DICT_FILENAME: &str = "/usr/share/dict/words";
 
 // TODO better interface to choose
@@ -41,7 +43,11 @@ fn characters(a: u32) -> Vec<char> {
 //TODO filtering might belong in WordPicker::new instead
 fn load_dict(filename: &str, charset: &Vec<char>) -> Vec<String> {
     //TODO below is amazingly stupid
-    let cs = String::from(charset.iter().map(|c| vec![c.clone()].into_iter().collect()).collect::<Vec<String>>().join(""));
+    let cs = String::from(
+        charset.iter()
+            .map(|c| vec![c.clone()].into_iter().collect())
+            .collect::<Vec<String>>()
+            .join(""));
     let r = String::from("^[") + &cs + "]*$";
     let regex = Regex::new(&r).unwrap();
 
@@ -50,7 +56,8 @@ fn load_dict(filename: &str, charset: &Vec<char>) -> Vec<String> {
         .lines()
         .map(|line| { line.unwrap() })
         .filter(|word| { regex.is_match(word) })
-        .filter(|word| { word.len() < 7 })
+        .filter(|word| { word.len() >= MIN_WORD_LENGTH })
+        .filter(|word| { word.len() <= MAX_WORD_LENGTH })
         .collect()
 }
 
@@ -83,13 +90,13 @@ fn main() {
     let char_set = characters(arg0.trim().parse().unwrap());
 
     let mut word_gen = match args.next() {
-        // doesn't care what th arg is becauso I'm lazy
+        // doesn't care what the arg is becauso I'm lazy
         Some(_) => {
             let dict = load_dict(DICT_FILENAME, &char_set);
             WordGenerator::new_with_dict(dict)
         },
         _ => {
-            WordGenerator::new(&char_set, MAX_WORD_LENGTH)
+            WordGenerator::new(&char_set, MIN_WORD_LENGTH, MAX_WORD_LENGTH)
         }
     };
 
@@ -103,7 +110,7 @@ fn main() {
     stdin.lock().lines().next();
 
     while total_answered < 25 {
-        let n = rng.gen_range(1, MAX_WORD_COUNT + 1);
+        let n = rng.gen_range(MIN_WORD_COUNT, MAX_WORD_COUNT + 1);
         println!("Check: {}", n); // convention from radiogram preamble
 
         let message = word_gen.get_n_words(n);
