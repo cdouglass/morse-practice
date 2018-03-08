@@ -38,3 +38,5 @@ $ cargo run 2
   * all dots
   * maybe difficulty level too, eg average word and phrase length?
   * touch-typing options - home row, left/right hands, others?
+  * dictionary of Q-codes, prosigns, and common standard message forms eg signal reports
+  * single short words (3 letters max?) with the idea that you don't type anything until the word is over - exercise auditory memory
