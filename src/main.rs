@@ -22,16 +22,18 @@ mod words;
 use words::WordGenerator;
 
 const USAGE: &'static str = "
-Usage: morse [-p <pitch>]
+Usage: morse [-p <pitch>] [-d]
 
 Options:
     -p, --pitch <pitch>    Pitch in Hz
+    -d, --dict             Use real words from dictionary file
 ";
 
 #[derive(Deserialize)]
 #[derive(Debug)]
 struct Args {
     flag_pitch: Option<u32>,
+    flag_dict: bool,
 }
 
 const DEFAULT_PITCH: u32 = 440;
@@ -107,24 +109,15 @@ fn main() {
         .and_then(|d| d.argv(env::args()).deserialize())
         .unwrap_or_else(|e| e.exit());
 
-    //let char_set = characters(arg0.trim().parse().unwrap());
     let char_set = characters(0);
-
     let pitch = args.flag_pitch.unwrap_or(DEFAULT_PITCH);
 
-    //let mut word_gen = match args.next() {
-    let mut word_gen = match Some(3) {
-        // doesn't care what the arg is becauso I'm lazy
-        Some(_) => {
-            let dict = load_dict(DICT_FILENAME, &char_set);
-            WordGenerator::new_with_dict(dict)
-        },
-        _ => {
-            WordGenerator::new(&char_set, MIN_WORD_LENGTH, MAX_WORD_LENGTH)
-        }
-    };
-
     let mut rng = rand::thread_rng();
+    let mut word_gen = if args.flag_dict {
+        WordGenerator::new_with_dict(load_dict(DICT_FILENAME, &char_set))
+    } else {
+        WordGenerator::new(&char_set, MIN_WORD_LENGTH, MAX_WORD_LENGTH)
+    };
 
     let mut total_correct = 0;
     let mut total_answered = 0;
