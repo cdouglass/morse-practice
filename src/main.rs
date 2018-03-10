@@ -1,6 +1,11 @@
+extern crate docopt;
 extern crate rand;
 extern crate regex;
 
+#[macro_use]
+extern crate serde_derive;
+
+use docopt::Docopt;
 use rand::Rng;
 use regex::Regex;
 
@@ -16,6 +21,20 @@ mod words;
 
 use words::WordGenerator;
 
+const USAGE: &'static str = "
+Usage: morse [-p <pitch>]
+
+Options:
+    -p, --pitch <pitch>    Pitch in Hz
+";
+
+#[derive(Deserialize)]
+#[derive(Debug)]
+struct Args {
+    flag_pitch: Option<u32>,
+}
+
+const DEFAULT_PITCH: u32 = 440;
 const MIN_WORD_COUNT: usize = 2;
 const MAX_WORD_COUNT: usize = 4;
 const MIN_WORD_LENGTH: usize = 2; // only limits random words, not real ones
@@ -61,12 +80,12 @@ fn load_dict(filename: &str, charset: &Vec<char>) -> Vec<String> {
         .collect()
 }
 
-fn quiz(message: &String, stdin: &std::io::Stdin) -> bool {
+fn quiz(message: &String, stdin: &std::io::Stdin, pitch: u32) -> bool {
     let mut passing = true;
     let elements = encoding::encode(message);
 
     loop {
-        audio::play(&elements).output().unwrap();
+        audio::play(&elements, pitch).output().unwrap();
         let answer = stdin.lock().lines().next().unwrap().unwrap().clone();
 
         if &answer.trim() == message {
@@ -84,12 +103,17 @@ fn quiz(message: &String, stdin: &std::io::Stdin) -> bool {
 }
 
 fn main() {
-    let mut args = env::args();
-    args.next();
-    let arg0: String = args.next().unwrap_or(String::from("999"));
-    let char_set = characters(arg0.trim().parse().unwrap());
+    let args: Args = Docopt::new(USAGE)
+        .and_then(|d| d.argv(env::args()).deserialize())
+        .unwrap_or_else(|e| e.exit());
 
-    let mut word_gen = match args.next() {
+    //let char_set = characters(arg0.trim().parse().unwrap());
+    let char_set = characters(0);
+
+    let pitch = args.flag_pitch.unwrap_or(DEFAULT_PITCH);
+
+    //let mut word_gen = match args.next() {
+    let mut word_gen = match Some(3) {
         // doesn't care what the arg is becauso I'm lazy
         Some(_) => {
             let dict = load_dict(DICT_FILENAME, &char_set);
@@ -114,7 +138,7 @@ fn main() {
         println!("Check: {}", n); // convention from radiogram preamble
 
         let message = word_gen.get_n_words(n);
-        let correct = quiz(&message, &stdin);
+        let correct = quiz(&message, &stdin, pitch);
 
         total_answered += 1;
         if correct { total_correct += 1; }

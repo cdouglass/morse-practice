@@ -3,8 +3,6 @@ use std::process::Command;
 use encoding::Element;
 
 // 20 wpm <-> dot length 60ms
-const PITCH: u32 = 210;
-
 const DOT_LENGTH: u32 = 80;
 const LONG: u32 = 3 * DOT_LENGTH;
 
@@ -32,7 +30,7 @@ impl Tone {
     }
 }
 
-pub fn play(elements: &Vec<Element>) -> Command {
+pub fn play(elements: &Vec<Element>, pitch: u32) -> Command {
     // create beep command with a single inaudibly low tone
     let mut cmd = Command::new("beep");
     cmd.arg("-f 1");
@@ -40,7 +38,7 @@ pub fn play(elements: &Vec<Element>) -> Command {
 
     for elt in elements {
         let tone = Tone::from_element(elt);
-        play_tone(&mut cmd, tone);
+        play_tone(&mut cmd, tone, pitch);
     }
 
     cmd
@@ -54,9 +52,9 @@ pub fn bzzt() -> Command {
     cmd
 }
 
-fn play_tone(mut cmd: &mut Command, tone: Tone) {
+fn play_tone(mut cmd: &mut Command, tone: Tone, pitch: u32) {
     if tone.audible {
-        add_beep(&mut cmd, PITCH, tone.length, DOT_LENGTH);
+        add_beep(&mut cmd, pitch, tone.length, DOT_LENGTH);
     } else {
         add_beep(&mut cmd, 1, tone.length, 0);
     }
