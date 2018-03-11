@@ -22,21 +22,20 @@ const USAGE: &'static str = "
 Usage: morse [-p <pitch>] [-d]
 
 Options:
-    -p, --pitch <pitch>    Pitch in Hz
+    -p, --pitch <pitch>    Pitch in Hz [default: 440]
     -d, --dict             Use real words from dictionary file
 ";
 
 #[derive(Deserialize)]
 #[derive(Debug)]
 struct Args {
-    flag_pitch: Option<u32>,
+    flag_pitch: u32,
     flag_dict: bool,
 }
 
-const DEFAULT_PITCH: u32 = 440;
 const MIN_WORD_COUNT: usize = 2;
 const MAX_WORD_COUNT: usize = 4;
-const MIN_WORD_LENGTH: usize = 2; // only limits random words, not real ones
+const MIN_WORD_LENGTH: usize = 2;
 const MAX_WORD_LENGTH: usize = 7;
 const DICT_FILENAME: &str = "/usr/share/dict/words";
 
@@ -86,7 +85,7 @@ fn main() {
         .unwrap_or_else(|e| e.exit());
 
     let char_set = characters(0);
-    let pitch = args.flag_pitch.unwrap_or(DEFAULT_PITCH);
+    let pitch = args.flag_pitch;
 
     let mut rng = rand::thread_rng();
     let mut word_gen = if args.flag_dict {
@@ -114,7 +113,7 @@ fn main() {
     }
 
     let percentage = total_correct * 4;
-    println!("You've correctly copied {} of {} words, or {}%.", total_correct, total_answered, percentage);
+    println!("You've correctly copied {} of {} messages, or {}%.", total_correct, total_answered, percentage);
 
     if percentage >= 90 {
         println!("Good work. Time to add a new letter!");
