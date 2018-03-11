@@ -1,14 +1,12 @@
-//TODO instead have collection of Key structs and filter them
-pub fn home() -> Vec<char> {
+pub fn all() -> Vec<char> {
     all_keys().into_iter()
-        .filter(|k| {k.row == Home})
         .map(|k| {k.character})
         .collect()
 }
 
 pub fn minimal() -> Vec<char> {
     all_keys().into_iter()
-        .filter(|k| {k.row == Home || k.row == Upper})
+        .filter(|k| {k.row != Digits})
         .map(|k| {k.character})
         .collect()
 }
