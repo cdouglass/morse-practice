@@ -7,27 +7,29 @@ use std::io::BufRead;
 use std::io::BufReader;
 
 pub struct WordGenerator {
-    min_length: usize,
-    max_length: usize,
-    //TODO only one of the following
-    characters: Vec<char>,
-    dict: Option<Vec<String>>,
+    reservoir: Reservoir,
     rng: rand::ThreadRng
 }
+
+enum Reservoir {
+    Dict(Vec<String>),
+    Chars(Vec<char>, (usize, usize))
+}
+use self::Reservoir::*;
 
 impl Iterator for WordGenerator {
     type Item = String;
 
     fn next(&mut self) -> Option<String> {
-        match self.dict {
-            Some(ref d) => {
-                Some(get_item(d, &mut self.rng))
+        match self.reservoir {
+            Dict(ref d) => {
+                self.rng.choose(&d).map(|s| s.clone())
             },
-            None => {
-                let length = self.rng.gen_range(self.min_length, self.max_length + 1);
-                let word = (0..length)
-                    .map(|_| { get_item(&self.characters, &mut self.rng) })
-                    .collect::<String>();
+            Chars(ref chars, (ref min, ref max)) => {
+                let mut word = String::new();
+                for _ in 0..(self.rng.gen_range(*min, *max + 1)) {
+                    word.push(*self.rng.choose(&chars).unwrap());
+                }
                 Some(word)
             }
         }
@@ -40,31 +42,20 @@ impl WordGenerator {
     }
 
     pub fn new(characters: &[char], min_length: usize, max_length: usize, dict_filename: Option<&str>) -> WordGenerator {
-        let dict = dict_filename.map(|f| load_dict(f, characters, min_length, max_length));
+        let reservoir = match dict_filename {
+            Some(f) => Dict(load_dict(f, characters, min_length, max_length)),
+            None => Chars(characters.into_iter().map(|x| *x).collect(), (min_length, max_length))
+        };
         WordGenerator {
-            characters: characters.into_iter().map(|x| *x).collect(),
-            min_length: min_length,
-            max_length: max_length,
-            dict: dict,
+            reservoir: reservoir,
             rng: rand::thread_rng()
         }
     }
 }
 
-//TODO do I actually need to hold an rng for this?
-//TODO also seems like slices should be fine instead of Vec if I just knew how to make lifetimes
-//work
-fn get_item<T: Clone>(vals: &Vec<T>, rng: &mut rand::ThreadRng) -> T {
-    rng.choose(vals).unwrap().clone()
-}
-
 fn load_dict(filename: &str, charset: &[char], min_length: usize, max_length: usize) -> Vec<String> {
-    //TODO below is amazingly stupid
-    let cs = String::from(
-        charset.iter()
-            .map(|c| vec![c.clone()].into_iter().collect())
-            .collect::<Vec<String>>()
-            .join(""));
+    let mut cs = String::new();
+    for c in charset {cs.push(*c)}
     let r = String::from("^[") + &cs + "]*$";
     let regex = Regex::new(&r).unwrap();
 
