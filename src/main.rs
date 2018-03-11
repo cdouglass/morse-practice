@@ -19,42 +19,37 @@ mod words;
 use words::WordGenerator;
 
 const USAGE: &'static str = "
-Usage: morse [-p <pitch>] [-d]
+Usage: morse [-p <pitch>] [-m <mode>] [-d] <wl-min> <wl-max> <wc-min> <wc-max>
 
 Options:
-    -p, --pitch <pitch>    Pitch in Hz [default: 440]
-    -d, --dict             Use real words from dictionary file
+    -p, --pitch <pitch>     Pitch in Hz [default: 440]
+    -m, --mode <mode>       Mode, denermines character set. [default: abc]
+                            Valid values: abc, all, num
+    -d, --dict              Use real words from dictionary file
 ";
 
-#[derive(Deserialize)]
-#[derive(Debug)]
+#[derive(Deserialize, Debug)]
 struct Args {
     flag_pitch: u32,
+    flag_mode: Mode,
     flag_dict: bool,
+    arg_wl_min: usize,
+    arg_wl_max: usize,
+    arg_wc_min: usize,
+    arg_wc_max: usize,
 }
 
-const MIN_WORD_COUNT: usize = 2;
-const MAX_WORD_COUNT: usize = 4;
-const MIN_WORD_LENGTH: usize = 2;
-const MAX_WORD_LENGTH: usize = 7;
+#[derive(Deserialize, Debug)]
+enum Mode { Abc, All, Num }
+
 const DICT_FILENAME: &str = "/usr/share/dict/words";
 
-// TODO better interface to choose
-fn characters(a: u32) -> Vec<char> {
-    let doubles = "ainm";
-    let triples = "osrduwkg";
-    let quartets = "hlpcybfqjvxz";
-    let digits = "23456789";
-    let chosen = match a {
-      0 => { return dvorak::minimal(); },
-      1 => { return dvorak::home(); },
-      2 => doubles.to_owned(),
-      3 => triples.to_owned(),
-      4 => quartets.to_owned(),
-      5 => digits.to_owned(),
-      _ => String::from(doubles) + triples + quartets,
-    };
-    chosen.chars().collect()
+fn char_set(m: Mode) -> Vec<char> {
+    match m {
+      Mode::Abc => dvorak::minimal(),
+      Mode::All => dvorak::all(),
+      Mode::Num => vec!['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    }
 }
 
 fn quiz(message: &String, stdin: &std::io::Stdin, pitch: u32) -> bool {
@@ -84,15 +79,14 @@ fn main() {
         .and_then(|d| d.argv(env::args()).deserialize())
         .unwrap_or_else(|e| e.exit());
 
-    let char_set = characters(0);
     let pitch = args.flag_pitch;
 
     let mut rng = rand::thread_rng();
-    let mut word_gen = if args.flag_dict {
-        WordGenerator::new(&char_set, MIN_WORD_LENGTH, MAX_WORD_LENGTH, Some(DICT_FILENAME))
-    } else {
-        WordGenerator::new(&char_set, MIN_WORD_LENGTH, MAX_WORD_LENGTH, None)
-    };
+    let mut word_gen = WordGenerator::new(
+        char_set(args.flag_mode),
+        args.arg_wl_min,
+        args.arg_wl_max,
+        if args.flag_dict { Some(DICT_FILENAME) } else { None });
 
     let mut total_correct = 0;
     let mut total_answered = 0;
@@ -102,7 +96,7 @@ fn main() {
     stdin.lock().lines().next();
 
     while total_answered < 25 {
-        let n = rng.gen_range(MIN_WORD_COUNT, MAX_WORD_COUNT + 1);
+        let n = rng.gen_range(args.arg_wc_min, args.arg_wc_max + 1);
         println!("Check: {}", n); // convention from radiogram preamble
 
         let message = word_gen.get_n_words(n);

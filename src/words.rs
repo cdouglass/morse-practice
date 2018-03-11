@@ -41,10 +41,10 @@ impl WordGenerator {
         self.take(n).collect::<Vec<String>>().join(" ")
     }
 
-    pub fn new(characters: &[char], min_length: usize, max_length: usize, dict_filename: Option<&str>) -> WordGenerator {
+    pub fn new(characters: Vec<char>, min_length: usize, max_length: usize, dict_filename: Option<&str>) -> WordGenerator {
         let reservoir = match dict_filename {
             Some(f) => Dict(load_dict(f, characters, min_length, max_length)),
-            None => Chars(characters.into_iter().map(|x| *x).collect(), (min_length, max_length))
+            None => Chars(characters, (min_length, max_length))
         };
         WordGenerator {
             reservoir: reservoir,
@@ -53,9 +53,9 @@ impl WordGenerator {
     }
 }
 
-fn load_dict(filename: &str, charset: &[char], min_length: usize, max_length: usize) -> Vec<String> {
+fn load_dict(filename: &str, charset: Vec<char>, min_length: usize, max_length: usize) -> Vec<String> {
     let mut cs = String::new();
-    for c in charset {cs.push(*c)}
+    for c in charset {cs.push(c)}
     let r = String::from("^[") + &cs + "]*$";
     let regex = Regex::new(&r).unwrap();
 
