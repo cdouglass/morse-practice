@@ -1,10 +1,16 @@
+use std::fs::File;
+
 use rand;
 use rand::Rng;
+use regex::Regex;
+use std::io::BufRead;
+use std::io::BufReader;
 
 pub struct WordGenerator {
-    characters: Vec<char>,
     min_length: usize,
     max_length: usize,
+    //TODO only one of the following
+    characters: Vec<char>,
     dict: Option<Vec<String>>,
     rng: rand::ThreadRng
 }
@@ -15,8 +21,6 @@ impl Iterator for WordGenerator {
     fn next(&mut self) -> Option<String> {
         match self.dict {
             Some(ref d) => {
-                //TODO filter somehow?
-                //eg max/min lengths or character set
                 Some(get_item(d, &mut self.rng))
             },
             None => {
@@ -35,22 +39,13 @@ impl WordGenerator {
         self.take(n).collect::<Vec<String>>().join(" ")
     }
 
-    pub fn new(characters: &[char], min_length: usize, max_length: usize) -> WordGenerator {
+    pub fn new(characters: &[char], min_length: usize, max_length: usize, dict_filename: Option<&str>) -> WordGenerator {
+        let dict = dict_filename.map(|f| load_dict(f, characters, min_length, max_length));
         WordGenerator {
             characters: characters.into_iter().map(|x| *x).collect(),
             min_length: min_length,
             max_length: max_length,
-            dict: None,
-            rng: rand::thread_rng()
-        }
-    }
-
-    pub fn new_with_dict(dict: Vec<String>) -> WordGenerator {
-        WordGenerator {
-            characters: vec![],
-            min_length: 0,
-            max_length: 0,
-            dict: Some(dict),
+            dict: dict,
             rng: rand::thread_rng()
         }
     }
@@ -61,4 +56,24 @@ impl WordGenerator {
 //work
 fn get_item<T: Clone>(vals: &Vec<T>, rng: &mut rand::ThreadRng) -> T {
     rng.choose(vals).unwrap().clone()
+}
+
+fn load_dict(filename: &str, charset: &[char], min_length: usize, max_length: usize) -> Vec<String> {
+    //TODO below is amazingly stupid
+    let cs = String::from(
+        charset.iter()
+            .map(|c| vec![c.clone()].into_iter().collect())
+            .collect::<Vec<String>>()
+            .join(""));
+    let r = String::from("^[") + &cs + "]*$";
+    let regex = Regex::new(&r).unwrap();
+
+    let dict_file = File::open(filename).unwrap();
+    BufReader::new(dict_file)
+        .lines()
+        .map(|line| { line.unwrap() })
+        .filter(|word| { regex.is_match(word) })
+        .filter(|word| { word.len() >= min_length })
+        .filter(|word| { word.len() <= max_length })
+        .collect()
 }

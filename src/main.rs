@@ -7,12 +7,9 @@ extern crate serde_derive;
 
 use docopt::Docopt;
 use rand::Rng;
-use regex::Regex;
 
 use std::env;
-use std::fs::File;
 use std::io::BufRead;
-use std::io::BufReader;
 
 mod audio;
 mod dvorak;
@@ -61,27 +58,6 @@ fn characters(a: u32) -> Vec<char> {
     chosen.chars().collect()
 }
 
-//TODO filtering might belong in WordPicker::new instead
-fn load_dict(filename: &str, charset: &Vec<char>) -> Vec<String> {
-    //TODO below is amazingly stupid
-    let cs = String::from(
-        charset.iter()
-            .map(|c| vec![c.clone()].into_iter().collect())
-            .collect::<Vec<String>>()
-            .join(""));
-    let r = String::from("^[") + &cs + "]*$";
-    let regex = Regex::new(&r).unwrap();
-
-    let dict_file = File::open(filename).unwrap();
-    BufReader::new(dict_file)
-        .lines()
-        .map(|line| { line.unwrap() })
-        .filter(|word| { regex.is_match(word) })
-        .filter(|word| { word.len() >= MIN_WORD_LENGTH })
-        .filter(|word| { word.len() <= MAX_WORD_LENGTH })
-        .collect()
-}
-
 fn quiz(message: &String, stdin: &std::io::Stdin, pitch: u32) -> bool {
     let mut passing = true;
     let elements = encoding::encode(message);
@@ -114,9 +90,9 @@ fn main() {
 
     let mut rng = rand::thread_rng();
     let mut word_gen = if args.flag_dict {
-        WordGenerator::new_with_dict(load_dict(DICT_FILENAME, &char_set))
+        WordGenerator::new(&char_set, MIN_WORD_LENGTH, MAX_WORD_LENGTH, Some(DICT_FILENAME))
     } else {
-        WordGenerator::new(&char_set, MIN_WORD_LENGTH, MAX_WORD_LENGTH)
+        WordGenerator::new(&char_set, MIN_WORD_LENGTH, MAX_WORD_LENGTH, None)
     };
 
     let mut total_correct = 0;
