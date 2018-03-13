@@ -37,10 +37,6 @@ impl Iterator for WordGenerator {
 }
 
 impl WordGenerator {
-    pub fn get_n_words(&mut self, n: usize) -> String {
-        self.take(n).collect::<Vec<String>>().join(" ")
-    }
-
     pub fn new(characters: Vec<char>, min_length: usize, max_length: usize, dict_filename: Option<&str>) -> WordGenerator {
         let reservoir = match dict_filename {
             Some(f) => Dict(load_dict(f, characters, min_length, max_length)),

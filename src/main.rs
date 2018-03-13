@@ -52,26 +52,37 @@ fn char_set(m: Mode) -> Vec<char> {
     }
 }
 
-fn quiz(message: &String, stdin: &std::io::Stdin, pitch: u32) -> bool {
-    let mut passing = true;
-    let elements = encoding::encode(message);
+fn quiz(message: &Vec<String>, stdin: &std::io::Stdin, pitch: u32) -> usize {
+    let mut n_correct = None; //TODO do I have to initialize before loop?
+    println!("Check: {}", message.len()); // convention from radiogram preamble
+
+    let msg_str = message.join(" ");
+    let elements = encoding::encode(&msg_str);
 
     loop {
         audio::play(&elements, pitch).output().unwrap();
         let answer = stdin.lock().lines().next().unwrap().unwrap().clone();
 
-        if &answer.trim() == message {
+        let ans_words = answer.trim().split(' ');
+        let pairs = message.iter().zip(ans_words);
+        let m = pairs.filter(|&(a, b)| a == b).count();
+
+        if n_correct == None {
+             n_correct = Some(m);
+        }
+
+        if answer.trim() == msg_str {
             println!("--------");
             break
         } else {
-            passing = false;
             audio::bzzt().output().unwrap();
-            println!("You copied _{}_,\nbut I sent _{}_.\nPress ENTER to try it again.", answer, message);
+            println!("_{}_ was the correct answer. You got {} of {} words. Press ENTER to try again.",
+                     msg_str, m, message.len());
             stdin.lock().lines().next();
         }
     }
 
-    passing
+    n_correct.unwrap()
 }
 
 fn main() {
@@ -88,30 +99,35 @@ fn main() {
         args.arg_wl_max,
         if args.flag_dict { Some(DICT_FILENAME) } else { None });
 
-    let mut total_correct = 0;
-    let mut total_answered = 0;
+    let mut messages_correct = 0;
+    let mut messages_answered = 0;
+    let mut words_correct = 0;
+    let mut words_answered = 0;
 
     println!("Press ENTER to start");
     let stdin = std::io::stdin();
     stdin.lock().lines().next();
 
-    while total_answered < 25 {
+    while words_answered < 25 {
         let n = rng.gen_range(args.arg_wc_min, args.arg_wc_max + 1);
-        println!("Check: {}", n); // convention from radiogram preamble
+        let message: Vec<String> = (&mut word_gen).take(n).collect();
 
-        let message = word_gen.get_n_words(n);
-        let correct = quiz(&message, &stdin, pitch);
+        words_answered += n;
+        messages_answered += 1;
 
-        total_answered += 1;
-        if correct { total_correct += 1; }
+        let n_correct = quiz(&message, &stdin, pitch);
+        words_correct += n_correct;
+        if n_correct == n { messages_correct += 1; }
     }
 
-    let percentage = total_correct * 4;
-    println!("You've correctly copied {} of {} messages, or {}%.", total_correct, total_answered, percentage);
+    let message_percentage = messages_correct * 100 / messages_answered;
+    let word_percentage = words_correct * 100 / words_answered;
+    println!("You've correctly copied {} of {} messages, or {}%.", messages_correct, messages_answered, message_percentage);
+    println!("You've correctly copied {} of {} words, or {}%.", words_correct, words_answered, word_percentage);
 
-    if percentage >= 90 {
+    if word_percentage >= 90 {
         println!("Good work. Time to add a new letter!");
-    } else if percentage > 50 {
+    } else if word_percentage > 50 {
         println!("Getting there...");
     } else {
         println!("I think you need to take a break.");
