@@ -19,13 +19,14 @@ mod words;
 use words::WordGenerator;
 
 const USAGE: &'static str = "
-Usage: morse [-p <pitch>] [-m <mode>] [-d] <wl-min> <wl-max> <wc-min> <wc-max>
+Usage: morse [-p <pitch>] [-m <mode>] [-d] [-c <chars>] <wl-min> <wl-max> <wc-min> <wc-max>
 
 Options:
     -p, --pitch <pitch>     Pitch in Hz [default: 440]
     -m, --mode <mode>       Mode, denermines character set. [default: abc]
                             Valid values: abc, all, num
     -d, --dict              Use real words from dictionary file
+    -c, --chars <chars>     Require every word to have all the listed characters
 ";
 
 #[derive(Deserialize, Debug)]
@@ -33,6 +34,7 @@ struct Args {
     flag_pitch: u32,
     flag_mode: Mode,
     flag_dict: bool,
+    flag_chars: String,
     arg_wl_min: usize,
     arg_wl_max: usize,
     arg_wc_min: usize,
@@ -44,8 +46,8 @@ enum Mode { Abc, All, Num }
 
 const DICT_FILENAME: &str = "/usr/share/dict/words";
 
-fn char_set(m: Mode) -> Vec<char> {
-    match m {
+fn char_set(m: &Mode) -> Vec<char> {
+    match *m {
       Mode::Abc => dvorak::minimal(),
       Mode::All => dvorak::all(),
       Mode::Num => vec!['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
@@ -76,7 +78,7 @@ fn quiz(message: &Vec<String>, stdin: &std::io::Stdin, pitch: u32) -> usize {
             break
         } else {
             audio::bzzt().output().unwrap();
-            println!("_{}_ was the correct answer. You got {} of {} words. Press ENTER to try again.",
+            println!("{}_ was the correct answer. You got {} of {} words. Press ENTER to try again.",
                      msg_str, m, message.len());
             stdin.lock().lines().next();
         }
@@ -94,10 +96,11 @@ fn main() {
 
     let mut rng = rand::thread_rng();
     let mut word_gen = WordGenerator::new(
-        char_set(args.flag_mode),
+        char_set(&args.flag_mode),
         args.arg_wl_min,
         args.arg_wl_max,
-        if args.flag_dict { Some(DICT_FILENAME) } else { None });
+        if args.flag_dict { Some(DICT_FILENAME) } else { None })
+        .filter(|w| args.flag_chars.chars().all(|c| w.contains(c)));
 
     let mut messages_correct = 0;
     let mut messages_answered = 0;
@@ -127,7 +130,7 @@ fn main() {
 
     if word_percentage >= 90 {
         println!("Good work. Time to add a new letter!");
-    } else if word_percentage > 50 {
+    } else if word_percentage > 70 {
         println!("Getting there...");
     } else {
         println!("I think you need to take a break.");
