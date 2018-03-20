@@ -13,9 +13,15 @@ pub struct WordGenerator {
 
 enum Reservoir {
     Dict(Vec<String>),
-    Chars(Vec<char>, (usize, usize))
+    Chars(Vec<char>, (usize, usize)),
+    Reader(Read)
 }
 use self::Reservoir::*;
+
+struct Read {
+    pub lines: Box<Iterator<Item=String>>,
+    pub current_line: Option<Box<Iterator<Item=String>>>
+}
 
 impl Iterator for WordGenerator {
     type Item = String;
@@ -31,6 +37,9 @@ impl Iterator for WordGenerator {
                     word.push(*self.rng.choose(&chars).unwrap());
                 }
                 Some(word)
+            },
+            Reader(ref mut it) => {
+                it.lines.next()
             }
         }
     }
@@ -44,6 +53,18 @@ impl WordGenerator {
         };
         WordGenerator {
             reservoir: reservoir,
+            rng: rand::thread_rng()
+        }
+    }
+
+    pub fn text_reader(filename: &str) -> WordGenerator {
+        let text_file = File::open(filename).unwrap();
+        let mut reader = Read {
+            lines: Box::new(BufReader::new(text_file).lines().map(|l| l.unwrap())),
+            None
+        };
+        WordGenerator {
+            reservoir: Reader(reader),
             rng: rand::thread_rng()
         }
     }

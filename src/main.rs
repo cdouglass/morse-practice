@@ -20,6 +20,7 @@ use words::WordGenerator;
 
 const USAGE: &'static str = "
 Usage: morse [-p <pitch>] [-m <mode>] [-d] [-c <chars>] <wl-min> <wl-max> <wc-min> <wc-max>
+       morse [-p <pitch>] [-t <filename>] <wc-min> <wc-max>
 
 Options:
     -p, --pitch <pitch>     Pitch in Hz [default: 440]
@@ -27,6 +28,7 @@ Options:
                             Valid values: abc, all, num
     -d, --dict              Use real words from dictionary file
     -c, --chars <chars>     Require every word to have all the listed characters
+    -t, --text <filename>   Use a text source!
 ";
 
 #[derive(Deserialize, Debug)]
@@ -35,6 +37,7 @@ struct Args {
     flag_mode: Mode,
     flag_dict: bool,
     flag_chars: String,
+    flag_text: Option<String>,
     arg_wl_min: usize,
     arg_wl_max: usize,
     arg_wc_min: usize,
@@ -94,13 +97,23 @@ fn main() {
 
     let pitch = args.flag_pitch;
 
+    let max_words: usize;
+
     let mut rng = rand::thread_rng();
-    let mut word_gen = WordGenerator::new(
-        char_set(&args.flag_mode),
-        args.arg_wl_min,
-        args.arg_wl_max,
-        if args.flag_dict { Some(DICT_FILENAME) } else { None })
-        .filter(|w| args.flag_chars.chars().all(|c| w.contains(c)));
+    let mut word_gen = match args.flag_text {
+        Some(ref text_filename) => {
+            max_words = 1000000;
+            WordGenerator::text_reader(text_filename)
+        },
+        None => {
+            max_words = 25;
+            WordGenerator::new(
+                char_set(&args.flag_mode),
+                args.arg_wl_min,
+                args.arg_wl_max,
+                if args.flag_dict { Some(DICT_FILENAME) } else { None })
+        }
+    }.filter(|w| args.flag_chars.chars().all(|c| w.contains(c)));
 
     let mut messages_correct = 0;
     let mut messages_answered = 0;
@@ -111,9 +124,9 @@ fn main() {
     let stdin = std::io::stdin();
     stdin.lock().lines().next();
 
-    while words_answered < 25 {
+    while words_answered < max_words {
         let n = rng.gen_range(args.arg_wc_min, args.arg_wc_max + 1);
-        let message: Vec<String> = (&mut word_gen).take(n).collect();
+        let message: Vec<String> = (&mut word_gen).take(n).map(|w| w.to_lowercase()).collect();
 
         words_answered += n;
         messages_answered += 1;
