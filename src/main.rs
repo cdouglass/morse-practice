@@ -49,6 +49,7 @@ enum Mode { Abc, All, Num }
 
 const DICT_FILENAME: &str = "/usr/share/dict/words";
 
+//TODO store as set
 fn char_set(m: &Mode) -> Vec<char> {
     match *m {
       Mode::Abc => dvorak::minimal(),
@@ -103,7 +104,7 @@ fn main() {
     let mut word_gen = match args.flag_text {
         Some(ref text_filename) => {
             max_words = 1000000;
-            WordGenerator::text_reader(text_filename)
+            WordGenerator::text_reader(text_filename, dvorak::all())
         },
         None => {
             max_words = 25;

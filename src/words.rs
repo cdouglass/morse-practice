@@ -5,6 +5,7 @@ use rand::Rng;
 use regex::Regex;
 use std::io::BufRead;
 use std::io::BufReader;
+use std::io::Read;
 
 pub struct WordGenerator {
     reservoir: Reservoir,
@@ -14,13 +15,12 @@ pub struct WordGenerator {
 enum Reservoir {
     Dict(Vec<String>),
     Chars(Vec<char>, (usize, usize)),
-    Reader(Read)
+    Reader(Read_)
 }
 use self::Reservoir::*;
 
-struct Read {
-    pub lines: Box<Iterator<Item=String>>,
-    pub current_line: Option<Box<Iterator<Item=String>>>
+struct Read_ {
+    pub words: Box<Iterator<Item=String>>
 }
 
 impl Iterator for WordGenerator {
@@ -38,8 +38,8 @@ impl Iterator for WordGenerator {
                 }
                 Some(word)
             },
-            Reader(ref mut it) => {
-                it.lines.next()
+            Reader(ref mut read) => {
+                read.words.next().map(|s| s.to_lowercase())
             }
         }
     }
@@ -57,11 +57,16 @@ impl WordGenerator {
         }
     }
 
-    pub fn text_reader(filename: &str) -> WordGenerator {
-        let text_file = File::open(filename).unwrap();
-        let mut reader = Read {
-            lines: Box::new(BufReader::new(text_file).lines().map(|l| l.unwrap())),
-            None
+    pub fn text_reader(filename: &str, mut char_set: Vec<char>) -> WordGenerator {
+        char_set.push(' ');
+        char_set.push('\n');
+        let mut text_file = File::open(filename).unwrap();
+        let mut contents = String::new();
+        text_file.read_to_string(&mut contents).expect(&format!("Couldn't read file {}", filename));
+        let filtered_contents: String = contents.to_lowercase().chars().filter(|c| char_set.contains(c)).collect();
+        let words: Vec<String> = filtered_contents.split_whitespace().map(|w| w.to_owned()).collect();
+        let reader = Read_ {
+            words: Box::new(words.into_iter())
         };
         WordGenerator {
             reservoir: Reader(reader),
