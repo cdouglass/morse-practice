@@ -20,7 +20,7 @@ use words::WordGenerator;
 
 const USAGE: &'static str = "
 Usage: morse [-p <pitch>] [-m <mode>] [-d] [-c <chars>] <wl-min> <wl-max> <wc-min> <wc-max>
-       morse [-p <pitch>] [-t <filename>] <wc-min> <wc-max>
+       morse [-p <pitch>] [-t <filename>] <wc-min> <wc-max> [<offset>]
 
 Options:
     -p, --pitch <pitch>     Pitch in Hz [default: 440]
@@ -42,6 +42,7 @@ struct Args {
     arg_wl_max: usize,
     arg_wc_min: usize,
     arg_wc_max: usize,
+    arg_offset: Option<usize>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -99,6 +100,7 @@ fn main() {
     let pitch = args.flag_pitch;
 
     let max_words: usize;
+    let offset = args.arg_offset.unwrap_or(0);
 
     let mut rng = rand::thread_rng();
     let mut word_gen = match args.flag_text {
@@ -114,7 +116,7 @@ fn main() {
                 args.arg_wl_max,
                 if args.flag_dict { Some(DICT_FILENAME) } else { None })
         }
-    }.filter(|w| args.flag_chars.chars().all(|c| w.contains(c)));
+    }.filter(|w| args.flag_chars.chars().all(|c| w.contains(c))).skip(offset);
 
     let mut messages_correct = 0;
     let mut messages_answered = 0;
