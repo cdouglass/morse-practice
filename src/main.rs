@@ -60,8 +60,8 @@ fn char_set(m: &Mode) -> Vec<char> {
 }
 
 fn quiz(message: &Vec<String>, stdin: &std::io::Stdin, pitch: u32) -> usize {
-    let mut n_correct = None; //TODO do I have to initialize before loop?
-    println!("Check: {}", message.len()); // convention from radiogram preamble
+    let mut n_correct = None;
+    let mut num_tries = 0;
 
     let msg_str = message.join(" ");
     let elements = encoding::encode(&msg_str);
@@ -79,13 +79,19 @@ fn quiz(message: &Vec<String>, stdin: &std::io::Stdin, pitch: u32) -> usize {
         }
 
         if answer.trim() == msg_str {
-            println!("--------");
             break
         } else {
             audio::bzzt().output().unwrap();
-            println!("{}_ was the correct answer. You got {} of {} words. Press ENTER to try again.",
-                     msg_str, m, message.len());
+            let mut feedback = String::new();
+            if num_tries > 0 {
+                feedback += &format!("{} was the correct answer. ", msg_str);
+            }
+            if message.len() > 1 {
+                feedback += &format!("{} words correct out of {}. ", m, message.len());
+            }
+            println!("{}Press ENTER to try again.", feedback);
             stdin.lock().lines().next();
+            num_tries += 1;
         }
     }
 
@@ -134,6 +140,9 @@ fn main() {
         words_answered += n;
         messages_answered += 1;
 
+        if args.arg_wc_min != args.arg_wc_max {
+            println!("Check: {}", message.len()); // convention from radiogram preamble
+        }
         let n_correct = quiz(&message, &stdin, pitch);
         words_correct += n_correct;
         if n_correct == n { messages_correct += 1; }
@@ -145,7 +154,7 @@ fn main() {
     println!("You've correctly copied {} of {} words, or {}%.", words_correct, words_answered, word_percentage);
 
     if word_percentage >= 90 {
-        println!("Good work. Time to add a new letter!");
+        println!("Good work!");
     } else if word_percentage > 70 {
         println!("Getting there...");
     } else {
