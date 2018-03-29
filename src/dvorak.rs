@@ -28,8 +28,8 @@ fn all_keys() -> Vec<Key> {
     keys.push(Key::new('9', Ring,         Digits, Right));
     keys.push(Key::new('0', Pinky,        Digits, Right));
 
-    // keys.push(Key::new(',', Ring,         Upper, Left));
-    // keys.push(Key::new('.', Middle,       Upper, Left));
+    keys.push(Key::new(',', Ring,         Upper, Left));
+    keys.push(Key::new('.', Middle,       Upper, Left));
     keys.push(Key::new('\'', Pinky,       Upper, Left));
     keys.push(Key::new('p', Index,        Upper, Left));
     keys.push(Key::new('y', IndexStretch, Upper, Left));
