@@ -19,30 +19,34 @@ mod words;
 use words::WordGenerator;
 
 const USAGE: &'static str = "
-Usage: morse [-p <pitch>] [-m <mode>] [-d] [-c <chars>] <wl-min> <wl-max> <wc-min> <wc-max>
-       morse [-p <pitch>] [-t <filename>] <wc-min> <wc-max> [<offset>]
+Usage: morse [-p <pitch>] [-l <dot>] [-d] [-c <chars>] <wl-min> <wl-max> <wc-min> <wc-max>
+       morse [-p <pitch>] [-l <dot>] -m <mode> [-c <chars>] <wl-min> <wl-max> <wc-min> <wc-max>
+       morse [-p <pitch>] [-l <dot>] -t <filename> [-o <offset>] <wc-min> <wc-max>
 
 Options:
-    -p, --pitch <pitch>     Pitch in Hz [default: 440]
-    -m, --mode <mode>       Mode, denermines character set. [default: abc]
-                            Valid values: abc, all, num
-    -d, --dict              Use real words from dictionary file
-    -c, --chars <chars>     Require every word to have all the listed characters
-    -t, --text <filename>   Use a text source!
+    -p, --pitch <pitch>    Pitch in Hz [default: 440]
+    -l, --length <dot>     Dot length in ms. 60ms is about 20wpm. [default: 80]
+    -d, --dict             Use real words from dictionary file
+    -c, --chars <chars>    Require every word to have all the listed characters
+    -m, --mode <mode>      Mode, denermines character set. [default: abc]
+                               Valid values: abc, all, num
+    -t, --text <filename>  Read through a text
+    -o, --offset <offset>  Start this many words into the text. [default: 0]
 ";
 
 #[derive(Deserialize, Debug)]
 struct Args {
-    flag_pitch: u32,
-    flag_mode: Mode,
-    flag_dict: bool,
-    flag_chars: String,
-    flag_text: Option<String>,
-    arg_wl_min: usize,
-    arg_wl_max: usize,
-    arg_wc_min: usize,
-    arg_wc_max: usize,
-    arg_offset: Option<usize>,
+    flag_pitch:  u32,
+    flag_length: u32,
+    flag_mode:   Mode,
+    flag_dict:   bool,
+    flag_chars:  String,
+    flag_text:   Option<String>,
+    flag_offset: usize,
+    arg_wl_min:  usize,
+    arg_wl_max:  usize,
+    arg_wc_min:  usize,
+    arg_wc_max:  usize,
 }
 
 #[derive(Deserialize, Debug)]
@@ -59,7 +63,7 @@ fn char_set(m: &Mode) -> Vec<char> {
     }
 }
 
-fn quiz(message: &Vec<String>, stdin: &std::io::Stdin, pitch: u32) -> usize {
+fn quiz(message: &Vec<String>, stdin: &std::io::Stdin, pitch: u32, dot_length: u32) -> usize {
     let mut n_correct = None;
     let mut num_tries = 0;
 
@@ -67,7 +71,7 @@ fn quiz(message: &Vec<String>, stdin: &std::io::Stdin, pitch: u32) -> usize {
     let elements = encoding::encode(&msg_str);
 
     loop {
-        audio::play(&elements, pitch).output().unwrap();
+        audio::play(&elements, pitch, dot_length).output().unwrap();
         let answer = stdin.lock().lines().next().unwrap().unwrap().clone();
 
         let ans_words = answer.trim().split(' ');
@@ -104,9 +108,10 @@ fn main() {
         .unwrap_or_else(|e| e.exit());
 
     let pitch = args.flag_pitch;
+    let dot_length = args.flag_length;
 
     let max_words: usize;
-    let offset = args.arg_offset.unwrap_or(0);
+    let offset = args.flag_offset;
 
     let mut rng = rand::thread_rng();
     let mut word_gen = match args.flag_text {
@@ -143,7 +148,7 @@ fn main() {
         if args.arg_wc_min != args.arg_wc_max {
             println!("Check: {}", message.len()); // convention from radiogram preamble
         }
-        let n_correct = quiz(&message, &stdin, pitch);
+        let n_correct = quiz(&message, &stdin, pitch, dot_length);
         words_correct += n_correct;
         if n_correct == n { messages_correct += 1; }
     }
