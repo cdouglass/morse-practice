@@ -27,6 +27,7 @@ fn all_keys() -> Vec<Key> {
     keys.push(Key::new('8', Middle,       Digits, Right));
     keys.push(Key::new('9', Ring,         Digits, Right));
     keys.push(Key::new('0', Pinky,        Digits, Right));
+    keys.push(Key::new('!', Pinky,        Digits, Left));
 
     keys.push(Key::new(',', Ring,         Upper, Left));
     keys.push(Key::new('.', Middle,       Upper, Left));
