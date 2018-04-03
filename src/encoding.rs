@@ -21,7 +21,24 @@ impl Character {
     }
 }
 
+pub fn all_chars() -> Vec<char> {
+    char_map().keys().map(|c| *c).filter(|c| c != &' ').collect()
+}
+
 pub fn encode(words: &str) -> Vec<Element> {
+    let characters = char_map();
+    words.chars().into_iter()
+        .filter_map(|c| characters.get(&c))
+        .flat_map(|c| {
+            let mut elts = c.elements.clone();
+            elts.push(CharSpace);
+            elts.into_iter()
+        })
+        .collect()
+}
+
+//TODO only create this once
+fn char_map() -> HashMap<char, Character> {
     let mut characters = HashMap::new();
     characters.insert('a', Character::new(vec![Dot,  Dash], 'a', "Alpha"));
     characters.insert('b', Character::new(vec![Dash, Dot,  Dot, Dot], 'b', "Bravo"));
@@ -49,9 +66,6 @@ pub fn encode(words: &str) -> Vec<Element> {
     characters.insert('x', Character::new(vec![Dash, Dot,  Dot,  Dash], 'x', "Xray"));
     characters.insert('y', Character::new(vec![Dash, Dot,  Dash, Dash], 'y', "Yankee"));
     characters.insert('z', Character::new(vec![Dash, Dash, Dot,  Dot], 'z', "Zulu"));
-    characters.insert('!', Character::new(vec![Dash, Dot,  Dash, Dot,  Dash, Dash], '!', "Bang"));
-    characters.insert(',', Character::new(vec![Dash, Dash, Dot,  Dot,  Dash, Dash], ',', "Comma"));
-    characters.insert('.', Character::new(vec![Dot,  Dash, Dot,  Dash, Dot,  Dash], '.', "Period"));
     characters.insert('1', Character::new(vec![Dot,  Dash, Dash, Dash, Dash], '1', "One"));
     characters.insert('2', Character::new(vec![Dot,  Dot,  Dash, Dash, Dash], '2', "Two"));
     characters.insert('3', Character::new(vec![Dot,  Dot,  Dot,  Dash, Dash], '3', "Three"));
@@ -62,15 +76,16 @@ pub fn encode(words: &str) -> Vec<Element> {
     characters.insert('8', Character::new(vec![Dash, Dash, Dash, Dot,  Dot], '8', "Eight"));
     characters.insert('9', Character::new(vec![Dash, Dash, Dash, Dash, Dot], '9', "Nine"));
     characters.insert('0', Character::new(vec![Dash, Dash, Dash, Dash, Dash], '0', "Zero"));
+    characters.insert('?', Character::new(vec![Dot,  Dot,  Dash, Dash, Dot,  Dot], '?', "Question mark"));
+    characters.insert('"', Character::new(vec![Dot,  Dash, Dot,  Dot,  Dash, Dot], '"', "Quote"));
+    characters.insert('.', Character::new(vec![Dot,  Dash, Dot,  Dash, Dot,  Dash], '.', "Period"));
+    characters.insert('-', Character::new(vec![Dash, Dot,  Dot,  Dot,  Dot,  Dash], '-', "Hyphen"));
+    characters.insert(';', Character::new(vec![Dash, Dot,  Dash, Dot,  Dash, Dot], '.', "Semicolon"));
+    characters.insert('!', Character::new(vec![Dash, Dot,  Dash, Dot,  Dash, Dash], '!', "Bang"));
+    characters.insert(',', Character::new(vec![Dash, Dash, Dot,  Dot,  Dash, Dash], ',', "Comma"));
+    characters.insert(':', Character::new(vec![Dash, Dash, Dash, Dot,  Dot,  Dot], '.', "Colon"));
     characters.insert('\'', Character::new(vec![Dot, Dash, Dash, Dash, Dash, Dot], '\'', "Apostrophe"));
     characters.insert(' ', Character::new(vec![WordSpace], ' ', ""));
 
-    words.chars().into_iter()
-        .filter_map(|c| characters.get(&c))
-        .flat_map(|c| {
-            let mut elts = c.elements.clone();
-            elts.push(CharSpace);
-            elts.into_iter()
-        })
-        .collect()
+    characters
 }

@@ -12,7 +12,6 @@ use std::env;
 use std::io::BufRead;
 
 mod audio;
-mod dvorak;
 mod encoding;
 mod words;
 
@@ -55,10 +54,11 @@ enum Mode { Abc, All, Num }
 const DICT_FILENAME: &str = "/usr/share/dict/words";
 
 //TODO store as set
+//TODO handle subsets of alphabet
 fn char_set(m: &Mode) -> Vec<char> {
     match *m {
-      Mode::Abc => dvorak::minimal(),
-      Mode::All => dvorak::all(),
+      Mode::Abc => "abcdefghijklmnopqrstuvwxyz".chars().collect(),
+      Mode::All => encoding::all_chars(),
       Mode::Num => vec!['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
     }
 }
@@ -117,7 +117,7 @@ fn main() {
     let mut word_gen = match args.flag_text {
         Some(ref text_filename) => {
             max_words = 1000000;
-            WordGenerator::text_reader(text_filename, dvorak::all())
+            WordGenerator::text_reader(text_filename, encoding::all_chars())
         },
         None => {
             max_words = 25;
