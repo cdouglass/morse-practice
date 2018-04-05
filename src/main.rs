@@ -116,7 +116,7 @@ fn main() {
     let mut rng = rand::thread_rng();
     let mut word_gen = match args.flag_text {
         Some(ref text_filename) => {
-            max_words = 1000000;
+            max_words = 100;
             WordGenerator::text_reader(text_filename, encoding::all_chars())
         },
         None => {
