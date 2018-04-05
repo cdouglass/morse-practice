@@ -2,10 +2,11 @@ use std::process::Command;
 
 use encoding::Element;
 
-// "Farnsworth timing" is technique of adding extra space between words and characters, while
-// transmitting each individual character at normal rate
-const FARNSWORTH_LONG: u32 = 3; // Space between characters; normally 3 dots
-const FARNSWORTH_VERY_LONG: u32 = 7; // Space between words; normally 7 dots
+// "Farnsworth timing" is technique of adding extra space between characters or words beyond the
+// defaults of 3 and 7 dot units respectively, while transmitting each individual character at
+// the normal rate.
+const CHAR_SPACE: u32 = 3;
+const WORD_SPACE: u32 = 7;
 
 
 struct Tone {
@@ -19,8 +20,8 @@ impl Tone {
         match *element {
             Dot       => Tone { audible: true,  length: 1 },
             Dash      => Tone { audible: true,  length: 3 },
-            CharSpace => Tone { audible: false, length: FARNSWORTH_LONG },
-            WordSpace => Tone { audible: false, length: FARNSWORTH_VERY_LONG },
+            CharSpace => Tone { audible: false, length: CHAR_SPACE },
+            WordSpace => Tone { audible: false, length: WORD_SPACE },
         }
     }
 }
