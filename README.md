@@ -2,7 +2,9 @@
 
 Teaches decoding Morse code. Ideally it does this using a rough version of the Koch method and Farnsworth timing as described in [http://www.justlearnmorsecode.com/](http://www.justlearnmorsecode.com/) (which also provides Windows software with many more features). In practice there isn't an interface for either of these yet, but for Farnsworth timing you can edit the constants `CHAR_SPACE` and `WORD_SPACE` in `src/audio.rs` and rebuild, and for Koch method you can comment out unwanted characters in `src/encoding.rs`.
 
-# Setup
+# Setup + requirements
+
+Project is written in Rust and built using `cargo`. Installation link and documentation can be found at [https://www.rust-lang.org/en-US/install.html](https://www.rust-lang.org/en-US/install.html).
 
 Uses the `beep` utility to make sounds, so probably needs Linux.
 
@@ -16,6 +18,7 @@ If the program is stopped with ctrl+C while it is playing a tone, the current to
 
 ```
 $ sudo apt-get install beep
+$ sudo apt-get install rlwrap
 $ cargo build
 ```
 
