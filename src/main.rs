@@ -73,33 +73,37 @@ fn quiz(message: &Vec<String>, stdin: &std::io::Stdin, pitch: u32, dot_length: u
     loop {
         audio::play(&elements, pitch, dot_length).output().unwrap();
         let answer = stdin.lock().lines().next().unwrap().unwrap().clone();
-
-        let ans_words = answer.trim().split(' ');
-        let pairs = message.iter().zip(ans_words);
-        let m = pairs.filter(|&(a, b)| a == b).count();
+        let pairs = answer.trim().split(' ').zip(message.iter());
 
         if n_correct == None {
-             n_correct = Some(m);
+            n_correct = Some(pairs.clone().filter(|&(a, b)| a == b).count());
         }
 
         if answer.trim() == msg_str {
             break
         } else {
             audio::bzzt().output().unwrap();
-            let mut feedback = String::new();
-            if num_tries > 0 {
-                feedback += &format!("{} was the correct answer. ", msg_str);
-            }
-            if message.len() > 1 {
-                feedback += &format!("{} words correct out of {}. ", m, message.len());
-            }
-            println!("{}Press ENTER to try again.", feedback);
+            let feedback = pairs
+                .map(|(a, c)| feedback(a, c, num_tries))
+                .collect::<Vec<String>>()
+                .join(" ");
+            println!("{}\nPress ENTER to try again.", feedback);
             stdin.lock().lines().next();
             num_tries += 1;
         }
     }
 
     n_correct.unwrap()
+}
+
+fn feedback(answer_word: &str, correct_word: &str, num_tries: usize) -> String {
+    if correct_word == answer_word || num_tries > 1 {
+        String::from(correct_word)
+    } else if num_tries == 0 {
+        String::from("_")
+    } else {
+        correct_word.chars().into_iter().map(|_| "_").collect::<Vec<&str>>().join("")
+    }
 }
 
 fn main() {
