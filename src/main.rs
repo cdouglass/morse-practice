@@ -18,8 +18,11 @@ mod words;
 use words::WordGenerator;
 
 const USAGE: &'static str = "
-Usage: morse [-p <pitch>] [-l <dot>] [-d] [-c <chars>] <wl-min> <wl-max> <wc-min> <wc-max>
+Usage: morse [-p <pitch>] [-l <dot>] [-d] [-c <chars>] [<wl-min> <wc-min>]
+       morse [-p <pitch>] [-l <dot>] [-d] [-c <chars>] <wl-min> <wl-max> <wc-min> <wc-max>
+       morse [-p <pitch>] [-l <dot>] -m <mode> [-c <chars>] [<wl> <wc>]
        morse [-p <pitch>] [-l <dot>] -m <mode> [-c <chars>] <wl-min> <wl-max> <wc-min> <wc-max>
+       morse [-p <pitch>] [-l <dot>] -t <filename> [-o <offset>] [<wc-min>]
        morse [-p <pitch>] [-l <dot>] -t <filename> [-o <offset>] <wc-min> <wc-max>
 
 Options:
@@ -42,14 +45,19 @@ struct Args {
     flag_chars:  String,
     flag_text:   Option<String>,
     flag_offset: usize,
-    arg_wl_min:  usize,
-    arg_wl_max:  usize,
-    arg_wc_min:  usize,
-    arg_wc_max:  usize,
+    arg_wl_min:  Option<usize>,
+    arg_wl_max:  Option<usize>,
+    arg_wc_min:  Option<usize>,
+    arg_wc_max:  Option<usize>,
 }
 
 #[derive(Deserialize, Debug)]
 enum Mode { Abc, All, Num }
+
+const TOTAL_WORDS_RANDOM: usize = 25;
+const TOTAL_WORDS_TEXT_READER: usize = 100;
+const WORD_COUNT_DEFAULT: usize = 5;
+const WORD_LENGTH_DEFAULT: usize = 5;
 
 const DICT_FILENAME: &str = "/usr/share/dict/words";
 
@@ -113,22 +121,27 @@ fn main() {
 
     let pitch = args.flag_pitch;
     let dot_length = args.flag_length;
-
-    let max_words: usize;
     let offset = args.flag_offset;
+
+    let wl_min = args.arg_wl_min.unwrap_or(WORD_LENGTH_DEFAULT);
+    let wl_max = args.arg_wl_max.unwrap_or(wl_min);
+    let wc_min = args.arg_wc_min.unwrap_or(WORD_COUNT_DEFAULT);
+    let wc_max = args.arg_wc_max.unwrap_or(wc_min);
+
+    let total_words: usize; // Stop after this many words
 
     let mut rng = rand::thread_rng();
     let mut word_gen = match args.flag_text {
         Some(ref text_filename) => {
-            max_words = 100;
+            total_words = TOTAL_WORDS_TEXT_READER;
             WordGenerator::text_reader(text_filename, encoding::all_chars())
         },
         None => {
-            max_words = 25;
+            total_words = TOTAL_WORDS_RANDOM;
             WordGenerator::new(
                 char_set(&args.flag_mode),
-                args.arg_wl_min,
-                args.arg_wl_max,
+                wl_min,
+                wl_max,
                 if args.flag_dict { Some(DICT_FILENAME) } else { None })
         }
     }.filter(|w| args.flag_chars.chars().all(|c| w.contains(c))).skip(offset);
@@ -142,14 +155,14 @@ fn main() {
     let stdin = std::io::stdin();
     stdin.lock().lines().next();
 
-    while words_answered < max_words {
-        let n = rng.gen_range(args.arg_wc_min, args.arg_wc_max + 1);
+    while words_answered < total_words {
+        let n = rng.gen_range(wc_min, wc_max + 1);
         let message: Vec<String> = (&mut word_gen).take(n).map(|w| w.to_lowercase()).collect();
 
         words_answered += n;
         messages_answered += 1;
 
-        if args.arg_wc_min != args.arg_wc_max {
+        if wc_min != wc_max {
             println!("Check: {}", message.len()); // convention from radiogram preamble
         }
         let n_correct = quiz(&message, &stdin, pitch, dot_length);
