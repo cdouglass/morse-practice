@@ -20,7 +20,7 @@ use words::WordGenerator;
 const USAGE: &'static str = "
 Usage: morse [-p <pitch>] [-l <dot>] [-d] [-c <chars>] [<wl-min> <wc-min>]
        morse [-p <pitch>] [-l <dot>] [-d] [-c <chars>] <wl-min> <wl-max> <wc-min> <wc-max>
-       morse [-p <pitch>] [-l <dot>] -m <mode> [-c <chars>] [<wl> <wc>]
+       morse [-p <pitch>] [-l <dot>] -m <mode> [-c <chars>] [<wl-min> <wc-min>]
        morse [-p <pitch>] [-l <dot>] -m <mode> [-c <chars>] <wl-min> <wl-max> <wc-min> <wc-max>
        morse [-p <pitch>] [-l <dot>] -t <filename> [-o <offset>] [<wc-min>]
        morse [-p <pitch>] [-l <dot>] -t <filename> [-o <offset>] <wc-min> <wc-max>
